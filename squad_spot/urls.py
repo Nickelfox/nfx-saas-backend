@@ -1,0 +1,33 @@
+"""
+URL configuration for squad_spot project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, re_path, include
+from custom_admin import ss_admin_site, company_admin_site
+from apps.user.views import CustomAdminLoginView
+from django.contrib import admin
+
+urlpatterns = [
+    path('admin/login/', CustomAdminLoginView.as_view(), name='custom_admin_login'),
+    path('admin/', ss_admin_site.urls),
+    path('user/', include('apps.user.urls')),
+]
+urlpatterns += [
+    # path('company_admin/', company_admin_site.urls),
+    # path('company-admin/<str:company_name>/', include('apps.company.urls')),
+    path('<str:company_name>-admin/', company_admin_site.urls, name='company_admin'),
+#    path('company-admin/', company_admin_site.urls),
+]

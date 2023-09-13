@@ -1,0 +1,50 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/forms.css" %}">{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; {% translate 'Generate New Password' %}
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% if flag %}
+
+<p>{% translate "Please enter your new password." %}</p>
+
+<form method="post">{% csrf_token %}
+<fieldset class="module aligned">
+    <div class="form-row field-password1">
+        {{ form.as_p }}
+    </div>
+    <input type="submit" value="{% translate 'Generate password' %}">
+</fieldset>
+</form>
+
+{% else %}
+
+<p>{% translate "The password generation link was invalid, possibly because it has already been used.  Please request a new password generation." %}</p>
+
+{% endif %}
+
+{% endblock %}
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Accept Invitation</title>
+</head>
+<body>
+    <h1>Accept Invitation</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html> -->
