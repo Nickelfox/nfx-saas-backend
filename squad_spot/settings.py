@@ -37,7 +37,6 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -59,6 +58,9 @@ INSTALLED_APPS = [
 
 # settings.py
 
+ALLOWED_HOSTS = ['sqsp.com', '.sqsp.com', ]
+SESSION_COOKIE_DOMAIN = '.sqsp.com'
+
 AUTHENTICATION_BACKENDS = [
     'apps.user.authentication.SuperAdminBackend',
 ]
@@ -70,6 +72,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'squad_spot.subdomain_middleware.CustomLoginRedirectMiddleware', #custom
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

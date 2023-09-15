@@ -6,6 +6,7 @@ ROLE_MODULE_CHOICES = (
     ("USERS", "USERS"),
     ("ROLES", "ROLES"),
     ("COMPANIES", "COMPANIES"),
+    ("INVITATIONS", "INVITATIONS"),
     # Add more modules here as needed
 )
 ROLE_PERMISSION_CHOICES = [

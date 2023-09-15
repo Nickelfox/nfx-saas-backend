@@ -22,12 +22,7 @@ from django.contrib import admin
 
 urlpatterns = [
     path('admin/login/', CustomAdminLoginView.as_view(), name='custom_admin_login'),
-    path('admin/', ss_admin_site.urls),
+    path('admin/', company_admin_site.urls),
     path('user/', include('apps.user.urls')),
-]
-urlpatterns += [
-    # path('company_admin/', company_admin_site.urls),
-    # path('company-admin/<str:company_name>/', include('apps.company.urls')),
-    path('<str:company_name>-admin/', company_admin_site.urls, name='company_admin'),
-#    path('company-admin/', company_admin_site.urls),
+    path('ss-admin/', ss_admin_site.urls),
 ]

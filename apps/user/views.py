@@ -16,22 +16,20 @@ from .forms import AcceptInvitationForm
 from django.contrib.auth.hashers import make_password
 from django.urls import reverse_lazy
 from custom_admin import company_admin_site
-
+from apps.company.utilities import get_tenant
 class CustomAdminLoginView(LoginView):
-    template_name = 'admin/login.html'
+    template_name = 'admin/custom_login.html'
 
     def get_success_url(self):
-        # Check if the user is authenticated and has a company_name attribute
-        if self.request.user.is_authenticated and hasattr(self.request.user, 'company'):
-            company_name = self.request.user.company.name.lower()
-            if company_name:
-                # Set the site name dynamically
-                company_admin_site.name = f"{company_name}-admin"
-                # Redirect to the custom admin site with company_name
-                return reverse_lazy('company_admin:index', kwargs={'company_name': company_name})
+        # Get the subdomain from the request's host
+        company_name = get_tenant(self.request)
+        if company_name:
+            admin_url = f'http://{company_name}.sqsp.com:8000/admin'
+        else:
+            admin_url = '/admin/'  # Default admin URL
 
-        # If conditions are not met, return the default admin URL
-        return reverse_lazy('admin:index')
+        return admin_url
+
 
 
 class AcceptInvitationView(FormView):
