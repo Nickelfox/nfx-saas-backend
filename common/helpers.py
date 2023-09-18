@@ -108,3 +108,41 @@ COM_MODULE_PERMISSIONS = [
        ],
    },
 ]
+
+ss_available_role_permissions = [
+    "User:view",
+    "User:add",
+    "User:update",
+    "User:delete",
+    "Invitation:view",
+    "Invitation:add",
+    "Invitation:update",
+    "Invitation:delete",
+    "Role:view",
+    "Role:add",
+    "Role:update",
+    "Role:delete",
+    "Company:view",
+    "Company:add",
+    "Company:update",
+    "Company:delete",
+]
+
+com_available_role_permissions = [
+    "User:view",
+    "User:add",
+    "User:update",
+    "User:delete",
+    "Invitation:view",
+    "Invitation:add",
+    "Invitation:update",
+    "Invitation:delete",
+    "Role:view",
+    "Role:add",
+    "Role:update",
+    "Role:delete",
+    "Client:view",
+    "Client:add",
+    "Client:update",
+    "Client:delete",
+]
