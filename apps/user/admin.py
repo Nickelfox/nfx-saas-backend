@@ -1,7 +1,9 @@
 from django.urls import reverse
 from django.contrib import admin
 from apps.role.models import AccessRole
-from common.helpers import module_perm
+from common.helpers import (module_perm,
+                            ss_available_role_permissions,
+                            com_available_role_permissions)
 from .models import User, Invitation
 from django.contrib.auth.hashers import make_password
 from custom_admin import ss_admin_site, company_admin_site
@@ -128,7 +130,15 @@ class CustomUserAdmin(admin.ModelAdmin):
         if user.is_super_user:
             return True
         else:
-            return module_perm("user", user, "delete")
+            del_perm = module_perm("user", user, "delete")
+            if not del_perm:
+                return False
+            else:
+                if obj and obj.is_superuser:  # Check if the object is associated with a superuser
+                    return False
+                if ((user.role.role_permissions != ss_available_role_permissions) and
+                    (obj and obj.role.role_permissions == ss_available_role_permissions)):  # Compare with all available role permissions
+                    return False  # Superadmins cannot be deleted
 
 
 class InvitationSpecificAdmin(admin.ModelAdmin):
@@ -258,7 +268,16 @@ class CustomUserSpecificAdmin(admin.ModelAdmin):
         if user.is_company_owner:
             return True
         else:
-            return module_perm("user", user, "delete")
+            del_perm = module_perm("user", user, "delete")
+            if not del_perm:
+                return False
+            else:
+                if obj and obj.is_company_owner:  # Check if the object is associated with a superuser
+                    return False
+                if ((user.role.role_permissions != com_available_role_permissions) and
+                    (obj and obj.role.role_permissions == com_available_role_permissions)):  # Compare with all available role permissions
+                    return False  # Superadmins cannot be deleted
+
 
 
 ss_admin_site.register(User, CustomUserAdmin)
