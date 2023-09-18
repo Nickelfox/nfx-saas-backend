@@ -3,12 +3,10 @@ from django.urls import path
 
 
 class SSAdminSite(admin.AdminSite):
-    site_header = "SS Admin Panel"
+    site_header = "Squad Spot Admin Panel"
     index_title = 'Modules'                 # default: "Site administration"
     site_title = 'SS Admin'  # default: "Django site admin"
-    login_template = 'admin/custom_login.html'  # Use the custom login template
-    login_url = 'admin_login'
-
+    
 
 ss_admin_site = SSAdminSite(name="ss-admin")
 
@@ -17,8 +15,6 @@ class CompanyAdminSite(admin.AdminSite):
     site_header = "Company Admin Panel"
     index_title = 'Modules'                 # default: "Site administration"
     site_title = 'Company Admin'  # default: "Django site admin"
-    login_template = 'admin/custom_login.html'  # Use the custom login template
-    login_url = 'custom_admin_login'
 
     def index(self, request, extra_context=None):
         # Get the user's company name from the URL parameter if not provided

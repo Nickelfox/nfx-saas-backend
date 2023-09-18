@@ -14,8 +14,7 @@ import os
 from pathlib import Path
 
 import environ
-from datetime import timedelta
-from django.contrib import admin
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,13 +52,14 @@ INSTALLED_APPS = [
     'apps.user',
     'common',
     'apps.role',
+    'apps.client',
     'django_extensions',
 ]
 
 # settings.py
 
-ALLOWED_HOSTS = ['sqsp.com', '.sqsp.com', ]
-SESSION_COOKIE_DOMAIN = '.sqsp.com'
+ALLOWED_HOSTS = ['*']
+
 
 AUTHENTICATION_BACKENDS = [
     'apps.user.authentication.SuperAdminBackend',
@@ -166,24 +166,4 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'level': 'DEBUG',  # Adjust the log level for console output
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': 'sqsp.log',  # Specify the log file path
-            'level': 'DEBUG',  # Adjust the log level for file output
-        },
-    },
-    'root': {
-        'handlers': ['console', 'file'],  # Include both console and file handlers
-        'level': 'DEBUG',  # Set the root logger's level to the lowest level you want to capture
-    },
-}
-
+HOST_URL = env('HOST_URL')

@@ -89,6 +89,7 @@ class Invitation(BaseModel):
     email = models.EmailField(unique=True, blank=False, null=False)
     role = models.ForeignKey(AccessRole, on_delete=models.CASCADE, null=True, blank=True)
     invite_link = models.CharField(max_length=255, blank=True, null=True)
+    company_id = models.UUIDField(default=uuid.uuid4, editable=False,blank=True, null=True)
     is_active = models.BooleanField(default=True)
     def __str__(self):
         return f"""{self.fullname} ({self.email}) {self.role.name}"""

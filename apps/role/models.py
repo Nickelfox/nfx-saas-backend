@@ -1,20 +1,8 @@
+import uuid
 from django.db import models
-from apps.company.models import Company
 from common.models import BaseModel
 # Define the choices for RoleModule as a tuple of tuples
-ROLE_MODULE_CHOICES = (
-    ("USERS", "USERS"),
-    ("ROLES", "ROLES"),
-    ("COMPANIES", "COMPANIES"),
-    ("INVITATIONS", "INVITATIONS"),
-    # Add more modules here as needed
-)
-ROLE_PERMISSION_CHOICES = [
-    ("add", "Add"),
-    ("view", "View"),
-    ("update", "Update"),
-    ("delete", "Delete"),
-]
+
 
 class AccessRole(BaseModel):
     """Create a single model for role management"""
@@ -22,6 +10,7 @@ class AccessRole(BaseModel):
     name = models.CharField(max_length=200, unique=True)
     description = models.TextField(null=True, blank=True)
     role_permissions = models.JSONField(default=dict)
+    company_id = models.UUIDField(default=uuid.uuid4, editable=False,blank=True, null=True)
 
     class Meta:
         verbose_name = "Access Role"
