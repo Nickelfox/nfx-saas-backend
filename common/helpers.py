@@ -30,3 +30,81 @@ def get_object_from_models(id_value):
             pass
 
     return None, None
+
+SS_MODULE_PERMISSIONS = [
+   {
+       'module': 'User',
+       'permissions': [
+           ('view', 'Users View'),
+           ('add', 'Users Add'),
+           ('update', 'Users Update'),
+           ('delete', 'Users Delete'),
+       ],
+   },
+   {
+       'module': 'Invitation',
+       'permissions': [
+           ('view', 'Invitations View'),
+           ('add', 'Invitations Add'),
+           ('update', 'Invitations Update'),
+           ('delete', 'Invitations Delete'),
+       ],
+   },
+   {
+       'module': 'Role',
+       'permissions': [
+           ('view', 'Roles View'),
+           ('add', 'Roles Add'),
+           ('update', 'Roles Update'),
+           ('delete', 'Roles Delete'),
+       ],
+   },
+   {
+       'module': 'Company',
+       'permissions': [
+           ('view', 'Companies View'),
+           ('add', 'Companies Add'),
+           ('update', 'Companies Update'),
+           ('delete', 'Companies Delete'),
+       ],
+   },
+]
+
+COM_MODULE_PERMISSIONS = [
+   {
+       'module': 'User',
+       'permissions': [
+           ('view', 'Users View'),
+           ('add', 'Users Add'),
+           ('update', 'Users Update'),
+           ('delete', 'Users Delete'),
+       ],
+   },
+   {
+       'module': 'Invitation',
+       'permissions': [
+           ('view', 'Invitations View'),
+           ('add', 'Invitations Add'),
+           ('update', 'Invitations Update'),
+           ('delete', 'Invitations Delete'),
+       ],
+   },
+   {
+       'module': 'Role',
+       'permissions': [
+           ('view', 'Roles View'),
+           ('add', 'Roles Add'),
+           ('update', 'Roles Update'),
+           ('delete', 'Roles Delete'),
+       ],
+   },
+   {
+       'module': 'Client',
+       'permissions': [
+           ('view', 'Clients View'),
+           ('add', 'Clients Add'),
+           ('update', 'Clients Update'),
+           ('delete', 'Clients Delete'),
+       ],
+   },
+]

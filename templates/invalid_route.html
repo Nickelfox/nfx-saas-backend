@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+&rsaquo; {% translate 'Invalid Route' %}
+</div>
+{% endblock %}
+
+{% block content %}
+
+<p>{% translate "You are trying to access a route that does not exist." %}</p>
+
+{% endblock %}

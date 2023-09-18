@@ -14,8 +14,7 @@ import os
 from pathlib import Path
 
 import environ
-from datetime import timedelta
-from django.contrib import admin
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,8 +36,6 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
-
 
 # Application definition
 
@@ -54,10 +51,14 @@ INSTALLED_APPS = [
     'apps.user',
     'common',
     'apps.role',
+    'apps.client',
     'django_extensions',
 ]
 
 # settings.py
+
+ALLOWED_HOSTS = ['*']
+
 
 AUTHENTICATION_BACKENDS = [
     'apps.user.authentication.SuperAdminBackend',
@@ -70,6 +71,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'squad_spot.subdomain_middleware.CustomLoginRedirectMiddleware',  # custom
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -163,24 +165,6 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+COMPANY_ADMIN_URL = env('COMPANY_ADMIN_URL')
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'level': 'DEBUG',  # Adjust the log level for console output
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': 'sqsp.log',  # Specify the log file path
-            'level': 'DEBUG',  # Adjust the log level for file output
-        },
-    },
-    'root': {
-        'handlers': ['console', 'file'],  # Include both console and file handlers
-        'level': 'DEBUG',  # Set the root logger's level to the lowest level you want to capture
-    },
-}
-
+HOST_URL = env('HOST_URL')

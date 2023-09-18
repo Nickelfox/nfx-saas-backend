@@ -24,4 +24,3 @@ class Company(BaseModel):
         verbose_name = "Company"
         verbose_name_plural = "Companies"
         ordering = ['-created_at']
-

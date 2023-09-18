@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+&rsaquo; {% translate 'Unauthorized Access' %}
+</div>
+{% endblock %}
+
+{% block content %}
+
+<p>{% translate "You do not have permissions to access this page. Please Contact your Company Admin for further details." %}</p>
+
+{% endblock %}
