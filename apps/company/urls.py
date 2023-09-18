@@ -1,4 +1,4 @@
-from django.urls import path, reverse_lazy
+from django.urls import path
 
 
 app_name = 'company'

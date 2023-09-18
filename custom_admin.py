@@ -6,7 +6,7 @@ class SSAdminSite(admin.AdminSite):
     site_header = "Squad Spot Admin Panel"
     index_title = 'Modules'                 # default: "Site administration"
     site_title = 'SS Admin'  # default: "Django site admin"
-    
+
 
 ss_admin_site = SSAdminSite(name="ss-admin")
 

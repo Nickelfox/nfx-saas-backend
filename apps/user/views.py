@@ -8,8 +8,7 @@ from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from .forms import AcceptInvitationForm
 from django.contrib.auth.hashers import make_password
-
-
+from squad_spot.settings import HOST_URL, COMPANY_ADMIN_URL
 
 class AcceptInvitationView(FormView):
     template_name = 'user/accept_invitation.html'
@@ -19,7 +18,8 @@ class AcceptInvitationView(FormView):
         model_name, obj = get_object_from_models(uuid)
         valid_flag = True
         if model_name and obj:
-            if(model_name == "Invitation" and (not obj.is_active))or(model_name == "Company" and (obj.is_active)):
+            if((model_name == "Invitation" and (not obj.is_active)) or
+               (model_name == "Company" and (obj.is_active))):
                 valid_flag = False
                 return HttpResponse("Invitation link expired")
         return render(request, self.template_name,
@@ -32,9 +32,10 @@ class AcceptInvitationView(FormView):
         # Retrieve the invitation associated with the UUID
         company_name = ""
         model_name, obj = get_object_from_models(uuid)
-        if(model_name == "Invitation" and (not obj.is_active))or(model_name == "Company" and (obj.is_active)):
+        if((model_name == "Invitation" and (not obj.is_active)) or
+           (model_name == "Company" and (obj.is_active))):
             return HttpResponse("Invitation link expired")
-        
+
         # Create a new user with the provided email and password
         password = request.POST.get('password')
         encrpt_pswd = make_password(password)
@@ -45,8 +46,8 @@ class AcceptInvitationView(FormView):
             company=obj if model_name == "Company" else None,
             company_id=obj.company_id if obj.company_id is not None else None,
             password=encrpt_pswd,
-            is_staff = True,
-            is_company_owner = True if model_name == "Company" else False,
+            is_staff=True,
+            is_company_owner=True if model_name == "Company" else False,
             )
 
         # Associate the user with the invitation and mark it as accepted
@@ -57,8 +58,8 @@ class AcceptInvitationView(FormView):
             company_name = obj.name 
         elif obj.company_id is not None:
             com_obj = Company.objects.get(id=obj.company_id)
-            company_name = com_obj.name  
-            
+            company_name = com_obj.name
+
         redirect_url = reverse('user:password_set_success')
         if company_name:
             redirect_url += f'?company_name={company_name}'
@@ -73,8 +74,8 @@ class PasswordSetSuccessView(TemplateView):
         context = super().get_context_data(**kwargs)
         company_name = self.request.GET.get('company_name')
         if company_name is not None:
-            login_url = f'http://{company_name}.localhost:8000/admin'
+            login_url = f'http://{company_name}.{COMPANY_ADMIN_URL}'
         else:
-            login_url= f'http://localhost:8000/ss-admin'
+            login_url = f'{HOST_URL}/ss-admin/'
         context['login_url'] = login_url
         return context
