@@ -18,7 +18,6 @@ class AcceptInvitationView(FormView):
     form_class = AcceptInvitationForm
 
     def get(self, request, uuid):
-        model_name, obj = get_object_from_models(uuid)
         valid_flag = True
         obj = Invitation.objects.filter(id=uuid)
         if obj:
