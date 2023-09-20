@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render
 
@@ -6,7 +6,6 @@ from apps.invitation.models import Invitation
 from common.constants import Invite_type, ApplicationMessages
 from .models import User
 from apps.company.models import Company
-from common.helpers import get_object_from_models
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from .forms import AcceptInvitationForm

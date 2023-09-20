@@ -20,5 +20,10 @@ class ApplicationMessages:
     Response, error etc application messages
     """
 
-    COMPANY_INVALID = "You do not have permissions to access this page. Please Contact your Company Admin for further details."
-    INVITATION_INVALID = "Invitation link expired. Please Contact your Admin for valid invitation link"
+    COMPANY_INVALID = """
+    You do not have permissions to access this page.
+    Please Contact your Company Admin for further details.
+    """
+    INVITATION_INVALID = """
+    Invitation link expired.
+    Please Contact your Admin for valid invitation link."""
