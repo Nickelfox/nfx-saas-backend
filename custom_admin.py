@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.urls import path
 
 
 class SSAdminSite(admin.AdminSite):
@@ -18,7 +17,9 @@ class CompanyAdminSite(admin.AdminSite):
 
     def index(self, request, extra_context=None):
         # Get the user's company name from the URL parameter if not provided
-        company_name = request.user.company.name if request.user.company else None
+        company_name = (
+            request.user.company.name if request.user.company else None
+        )
 
         # Dynamically set the site header and title based on the company_name
         if company_name:

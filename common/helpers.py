@@ -1,8 +1,5 @@
 from apps.role.models import AccessRole
-from common.models import BaseModel
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-from apps.user.models import Invitation, User
+from apps.invitation.models import Invitation
 from apps.company.models import Company
 
 

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.user",
     "common",
     "apps.role",
+    "apps.invitation",
     "apps.client",
     "django_extensions",
 ]

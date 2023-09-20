@@ -1,8 +1,12 @@
 # myapp/middleware.py
 
-from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from apps.company.models import Company
+from common.constants import (
+    SQUAD_SPOT_ADMIN_ROUTE_NAME,
+    COMPANY_ADMIN_ROUTE_NAME,
+    ApplicationMessages,
+)
 
 
 class CustomLoginRedirectMiddleware:
@@ -16,8 +20,13 @@ class CustomLoginRedirectMiddleware:
         if len(parts) == 2:
             company = parts[0]
             if company:
-                if "ss-admin" in request.path:
-                    return render(request, "unauthorized_access.html", status=401)
+                if f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}" in request.path:
+                    return render(
+                        request,
+                        "unauthorized_access.html",
+                        {"error_message": ApplicationMessages.COMPANY_INVALID},
+                        status=401,
+                    )
 
             # Validate company
             valid_company = Company.objects.filter(
@@ -28,13 +37,22 @@ class CustomLoginRedirectMiddleware:
 
         else:
             company = None
-            if "ss-admin" not in request.path and "admin" in request.path:
-                return render(request, "unauthorized_access.html", status=401)
+            if (
+                f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}" not in request.path
+                and f"{COMPANY_ADMIN_ROUTE_NAME}" in request.path
+            ):
+                return render(
+                    request,
+                    "unauthorized_access.html",
+                    {"error_message": ApplicationMessages.COMPANY_INVALID},
+                    status=401,
+                )
 
         if request.user.is_authenticated:
             if (
                 company
-                and request.user.company.name.replace(" ", "-").lower() != company
+                and request.user.company.name.replace(" ", "-").lower()
+                != company
             ):
                 return render(request, "invalid_route.html", status=404)
         response = self.get_response(request)

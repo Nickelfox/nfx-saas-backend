@@ -2,7 +2,11 @@ from django import forms
 from django.contrib import admin
 from apps.role.models import AccessRole
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from common.helpers import module_perm, SS_MODULE_PERMISSIONS, COM_MODULE_PERMISSIONS
+from common.helpers import (
+    module_perm,
+    SS_MODULE_PERMISSIONS,
+    COM_MODULE_PERMISSIONS,
+)
 from custom_admin import ss_admin_site, company_admin_site
 
 

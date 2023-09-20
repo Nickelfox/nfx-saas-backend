@@ -16,9 +16,13 @@ Including another URLconf
 """
 from django.urls import path, include
 from custom_admin import ss_admin_site, company_admin_site
+from common.constants import (
+    SQUAD_SPOT_ADMIN_ROUTE_NAME,
+    COMPANY_ADMIN_ROUTE_NAME,
+)
 
 urlpatterns = [
-    path("admin/", company_admin_site.urls),
+    path(f"{COMPANY_ADMIN_ROUTE_NAME}/", company_admin_site.urls),
     path("user/", include("apps.user.urls")),
-    path("ss-admin/", ss_admin_site.urls),
+    path(f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}/", ss_admin_site.urls),
 ]

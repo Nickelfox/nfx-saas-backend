@@ -1,4 +1,3 @@
-import uuid
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 from apps.role.models import AccessRole
@@ -87,19 +86,3 @@ class User(AbstractBaseUser, BaseModel):
     """
     To create a new instance of User model
     """
-
-
-class Invitation(BaseModel):
-    fullname = models.CharField(max_length=255)
-    email = models.EmailField(unique=True, blank=False, null=False)
-    role = models.ForeignKey(
-        AccessRole, on_delete=models.CASCADE, null=True, blank=True
-    )
-    invite_link = models.URLField(default="", blank=True)
-    company_id = models.UUIDField(
-        default=uuid.uuid4, editable=False, blank=True, null=True
-    )
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"""{self.fullname} ({self.email}) {self.role.name}"""
