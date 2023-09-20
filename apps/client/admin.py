@@ -2,12 +2,12 @@ from django.contrib import admin
 from custom_admin import company_admin_site
 from apps.client.models import Client
 from common.helpers import module_perm
+
 # Register your models here.
 
 
 class ClientSpecificAdmin(admin.ModelAdmin):
-
-    list_display = ["name","id"]
+    list_display = ["name", "id"]
     fields = ["name"]
 
     def save_model(self, request, obj, form, change):
@@ -26,7 +26,7 @@ class ClientSpecificAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
         user = request.user
-        if user.is_company_owner: 
+        if user.is_company_owner:
             return True
         else:
             return module_perm("client", user, "update")
@@ -34,7 +34,7 @@ class ClientSpecificAdmin(admin.ModelAdmin):
     def has_view_permission(self, request, obj=None):
         # Check if the user has permission to change the object
         user = request.user
-        if user.is_company_owner: 
+        if user.is_company_owner:
             return True
         else:
             return module_perm("client", user, "view")
@@ -49,7 +49,7 @@ class ClientSpecificAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Check if the user has permission to delete the object
         user = request.user
-        if user.is_company_owner: 
+        if user.is_company_owner:
             return True
         else:
             return module_perm("client", user, "delete")

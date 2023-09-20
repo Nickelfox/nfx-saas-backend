@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CommonConfig(AppConfig):
+class InvitationConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "common"
+    name = "apps.invitation"

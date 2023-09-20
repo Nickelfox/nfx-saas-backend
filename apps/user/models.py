@@ -1,4 +1,3 @@
-import uuid
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 from apps.role.models import AccessRole
@@ -14,7 +13,7 @@ class MyUserManager(BaseUserManager):
         Creates and saves a User with the given email
         """
         if not email:
-            raise ValueError('Users must have an email address')
+            raise ValueError("Users must have an email address")
 
         user = self.model(email=self.normalize_email(email))
 
@@ -44,17 +43,19 @@ class User(AbstractBaseUser, BaseModel):
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     password = models.CharField(max_length=255, blank=False, null=True)
     designation = models.CharField(max_length=255, blank=True, null=True)
-    role = models.ForeignKey(AccessRole, on_delete=models.SET_NULL,
-                             null=True, blank=True)
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL,
-                                null=True, blank=True)
+    role = models.ForeignKey(
+        AccessRole, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    company = models.ForeignKey(
+        Company, on_delete=models.SET_NULL, null=True, blank=True
+    )
     is_active = models.BooleanField(default=True)
     is_super_user = models.BooleanField(default=False)
     is_company_owner = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     objects = MyUserManager()
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
 
     def __str__(self):
         """
@@ -75,26 +76,13 @@ class User(AbstractBaseUser, BaseModel):
         """
         Verbose name and verbose plural
         """
+
         verbose_name = "User"
         verbose_name_plural = "Users"
-        ordering = ['-created_at']
-        unique_together = ('role', 'email')
-        get_latest_by = 'created_at'
+        ordering = ["-created_at"]
+        unique_together = ("role", "email")
+        get_latest_by = "created_at"
 
     """
     To create a new instance of User model
     """
-
-
-class Invitation(BaseModel):
-    fullname = models.CharField(max_length=255)
-    email = models.EmailField(unique=True, blank=False, null=False)
-    role = models.ForeignKey(AccessRole, on_delete=models.CASCADE,
-                             null=True, blank=True)
-    invite_link = models.CharField(max_length=255, blank=True, null=True)
-    company_id = models.UUIDField(default=uuid.uuid4, editable=False,
-                                  blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"""{self.fullname} ({self.email}) {self.role.name}"""

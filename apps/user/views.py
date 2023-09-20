@@ -1,6 +1,9 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render
+
+from apps.invitation.models import Invitation
+from common.constants import Invite_type, ApplicationMessages
 from .models import User
 from apps.company.models import Company
 from common.helpers import get_object_from_models
@@ -10,72 +13,118 @@ from .forms import AcceptInvitationForm
 from django.contrib.auth.hashers import make_password
 from squad_spot.settings import HOST_URL, COMPANY_ADMIN_URL
 
+
 class AcceptInvitationView(FormView):
-    template_name = 'user/accept_invitation.html'
     form_class = AcceptInvitationForm
 
     def get(self, request, uuid):
         model_name, obj = get_object_from_models(uuid)
         valid_flag = True
-        if model_name and obj:
-            if((model_name == "Invitation" and (not obj.is_active)) or
-               (model_name == "Company" and (obj.is_active))):
-                valid_flag = False
-                return HttpResponse("Invitation link expired")
-        return render(request, self.template_name,
-                      {'form': self.form_class,
-                       'invitation': obj,
-                       'flag': valid_flag,
-                       })
+        obj = Invitation.objects.filter(id=uuid)
+        if obj:
+            obj = obj.first()
+        else:
+            obj = Company.objects.filter(id=uuid).first()
+
+        if (
+            (
+                obj.invite_type == Invite_type.INTERNAL
+                or obj.invite_type == Invite_type.COMPANY
+            )
+            and (not obj.is_active)
+        ) or (
+            obj.invite_type == Invite_type.COMPANY_OWNER and (obj.is_active)
+        ):
+            valid_flag = False
+            self.template_name = "unauthorized_access.html"
+            return render(
+                request,
+                "unauthorized_access.html",
+                {"error_message": ApplicationMessages.INVITATION_INVALID},
+                status=401,
+            )
+        return render(
+            request,
+            "user/accept_invitation.html",
+            {
+                "form": self.form_class,
+                "invitation": obj,
+                "flag": valid_flag,
+            },
+            status=200,
+        )
 
     def post(self, request, uuid):
         # Retrieve the invitation associated with the UUID
         company_name = ""
-        model_name, obj = get_object_from_models(uuid)
-        if((model_name == "Invitation" and (not obj.is_active)) or
-           (model_name == "Company" and (obj.is_active))):
-            return HttpResponse("Invitation link expired")
+        obj = Invitation.objects.filter(id=uuid)
+        if obj:
+            obj = obj.first()
+        else:
+            obj = Company.objects.filter(id=uuid).first()
 
-        # Create a new user with the provided email and password
-        password = request.POST.get('password')
-        encrpt_pswd = make_password(password)
-        user = User.objects.create(
-            full_name=obj.fullname if model_name == "Invitation" else obj.owner_name,
-            email=obj.email if model_name == "Invitation" else obj.owner_email,
-            role=obj.role if model_name == "Invitation" else None,
-            company=obj if model_name == "Company" else None,
-            company_id=obj.company_id if obj.company_id is not None else None,
-            password=encrpt_pswd,
-            is_staff=True,
-            is_company_owner=True if model_name == "Company" else False,
+        if (
+            obj.invite_type in [Invite_type.INTERNAL, Invite_type.COMPANY]
+            and (not obj.is_active)
+        ) or (
+            obj.invite_type == Invite_type.COMPANY_OWNER and (obj.is_active)
+        ):
+            return render(
+                request,
+                "unauthorized_access.html",
+                {"error_message": ApplicationMessages.INVITATION_INVALID},
+                status=401,
             )
 
-        # Associate the user with the invitation and mark it as accepted
-        obj.is_active = True if model_name == "Company" else False
-        obj.invite_link = None if model_name == "Company" else obj.invite_link
-        obj.save()
-        if model_name == "Company":
-            company_name = obj.name 
-        elif obj.company_id is not None:
-            com_obj = Company.objects.get(id=obj.company_id)
-            company_name = com_obj.name
-
-        redirect_url = reverse('user:password_set_success')
+        # Create a new user with the provided email and password
+        password = request.POST.get("password")
+        encrpt_pswd = make_password(password)
+        if obj.invite_type == Invite_type.COMPANY_OWNER:
+            User.objects.create(
+                full_name=obj.owner_name,
+                email=obj.owner_email,
+                company=obj,
+                password=encrpt_pswd,
+                is_staff=True,
+                is_company_owner=True,
+            )
+            obj.is_active = True
+            obj.invite_link = ""
+            obj.save()
+            company_name = obj.name.replace(" ", "-").lower()
+        else:
+            if obj.invite_type == Invite_type.COMPANY:
+                com_obj = Company.objects.get(id=obj.company_id)
+                company_name = com_obj.name.replace(" ", "-").lower()
+            User.objects.create(
+                full_name=obj.fullname,
+                email=obj.email,
+                role=obj.role,
+                company=com_obj
+                if obj.invite_type == Invite_type.COMPANY
+                else None,
+                password=encrpt_pswd,
+                is_staff=True,
+                is_company_owner=False,
+            )
+            obj.is_active = False
+            obj.save()
+        redirect_url = reverse("user:password_set_success")
         if company_name:
-            redirect_url += f'?company_name={company_name}'
+            redirect_url += f"?company_name={company_name}"
 
         return HttpResponseRedirect(redirect_url)  # Redirect to a success page
 
 
 class PasswordSetSuccessView(TemplateView):
-    template_name = 'user/set_password_template.html'
+    template_name = "user/set_password_template.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        company_name = self.request.GET.get('company_name')
+        company_name = self.request.GET.get("company_name")
         if company_name is not None:
-            login_url = f'http://{company_name}.{COMPANY_ADMIN_URL}'
+            login_url = f"http://{company_name}.{COMPANY_ADMIN_URL}"
         else:
-            login_url = f'{HOST_URL}/ss-admin/'
-        context['login_url'] = login_url
+            login_url = f"{HOST_URL}/ss-admin/"
+        context["login_url"] = login_url
         return context
