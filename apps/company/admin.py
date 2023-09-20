@@ -7,13 +7,14 @@ from squad_spot.settings import HOST_URL
 
 
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner_email',
-                    'invite_link', 'is_active')
-    list_filter = ('is_active',)
-    search_fields = ('name', 'owner_email')
-    readonly_fields = ('invite_link', 'is_active',)
-    fields = ('name', 'owner_name', 'owner_email',
-              'invite_link', 'is_active')
+    list_display = ("name", "owner_email", "invite_link", "is_active")
+    list_filter = ("is_active",)
+    search_fields = ("name", "owner_email")
+    readonly_fields = (
+        "invite_link",
+        "is_active",
+    )
+    fields = ("name", "owner_name", "owner_email", "invite_link", "is_active")
 
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id
@@ -23,7 +24,9 @@ class CompanyAdmin(admin.ModelAdmin):
         if not change:
             # Generate the invite_link based on the id of new invitation
             new_uuid = obj.id  # obj.id is the default UUID
-            invite_link = f"{HOST_URL}{reverse('user:accept_invitation', args=[str(new_uuid)])}"
+            invite_link = (
+                f"{HOST_URL}{reverse('user:accept_invitation', args=[str(new_uuid)])}"
+            )
             # Update the invite_link in the model and save it again
             obj.invite_link = invite_link
             obj.save()

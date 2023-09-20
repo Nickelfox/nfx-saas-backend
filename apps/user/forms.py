@@ -1,5 +1,4 @@
 from django import forms
-from apps.user.models import User
 
 
 class AcceptInvitationForm(forms.Form):

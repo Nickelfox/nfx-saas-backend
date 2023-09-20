@@ -16,23 +16,26 @@ class CustomLoginRedirectMiddleware:
         if len(parts) == 2:
             company = parts[0]
             if company:
-                if 'ss-admin' in request.path:
-                    # return HttpResponseForbidden("Unauthorized")
-                    return render(request, 'unauthorized_access.html')
+                if "ss-admin" in request.path:
+                    return render(request, "unauthorized_access.html", status=401)
 
             # Validate company
             valid_company = Company.objects.filter(
-                name__iexact=company.replace("-", " ").lower()).exists()
+                name__iexact=company.replace("-", " ").lower()
+            ).exists()
             if not valid_company:
-                return render(request, 'invalid_route.html')
+                return render(request, "invalid_route.html", status=404)
 
         else:
             company = None
-            if 'ss-admin' not in request.path and 'admin' in request.path:
-                return render(request, 'unauthorized_access.html')
+            if "ss-admin" not in request.path and "admin" in request.path:
+                return render(request, "unauthorized_access.html", status=401)
 
         if request.user.is_authenticated:
-            if company and request.user.company.name.replace(" ", "-").lower() != company:
-                return render(request, 'invalid_route.html')
+            if (
+                company
+                and request.user.company.name.replace(" ", "-").lower() != company
+            ):
+                return render(request, "invalid_route.html", status=404)
         response = self.get_response(request)
         return response

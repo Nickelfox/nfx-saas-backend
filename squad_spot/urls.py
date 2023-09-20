@@ -18,7 +18,7 @@ from django.urls import path, include
 from custom_admin import ss_admin_site, company_admin_site
 
 urlpatterns = [
-    path('admin/', company_admin_site.urls),
-    path('user/', include('apps.user.urls')),
-    path('ss-admin/', ss_admin_site.urls),
+    path("admin/", company_admin_site.urls),
+    path("user/", include("apps.user.urls")),
+    path("ss-admin/", ss_admin_site.urls),
 ]

@@ -8,6 +8,7 @@ class BaseModel(models.Model):
     common for all models.
     properties: id (uuid), created_at, updated_at (timestamp)
     """
+
     class Meta:
         """
         abstract base model class.
@@ -18,8 +19,9 @@ class BaseModel(models.Model):
         base class: before installing the Meta attribute, it sets abstract=
         False.
         """
+
         abstract = True
-        ordering = ['created_at']
+        ordering = ["created_at"]
 
     objects = models.Manager()
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
