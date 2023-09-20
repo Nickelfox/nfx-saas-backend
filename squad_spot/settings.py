@@ -61,11 +61,6 @@ INSTALLED_APPS = [
 ALLOWED_HOSTS = ["*"]
 
 
-# AUTHENTICATION_BACKENDS = [
-#     'apps.user.authentication.SuperAdminBackend',
-# ]
-
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

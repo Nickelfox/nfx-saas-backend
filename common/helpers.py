@@ -1,6 +1,4 @@
 from apps.role.models import AccessRole
-from apps.invitation.models import Invitation
-from apps.company.models import Company
 
 
 def module_perm(name, user, perm):
@@ -17,20 +15,6 @@ def module_perm(name, user, perm):
     if f"{perm}" in module_permissions:
         return True
     return False
-
-
-def get_object_from_models(id_value):
-    model_classes = [Company, Invitation]  # Add your models here
-
-    for model_class in model_classes:
-        try:
-            obj = model_class.objects.get(pk=id_value)
-            model_name = model_class.__name__
-            return model_name, obj
-        except model_class.DoesNotExist:
-            pass
-
-    return None, None
 
 
 SS_MODULE_PERMISSIONS = [
