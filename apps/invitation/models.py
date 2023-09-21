@@ -20,7 +20,7 @@ class Invitation(BaseModel):
         default=Invite_type.INTERNAL,  # Set a default choice if needed
     )
     company_id = models.UUIDField(
-        default=uuid.uuid4, editable=False, blank=True, null=True
+        default=uuid.uuid4, editable=False, null=True
     )
     is_active = models.BooleanField(default=True)
 
