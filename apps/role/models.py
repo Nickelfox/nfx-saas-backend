@@ -12,7 +12,7 @@ class AccessRole(BaseModel):
     description = models.TextField(null=True, blank=True)
     role_permissions = models.JSONField(default=dict)
     company_id = models.UUIDField(
-        default=uuid.uuid4, editable=False, blank=True, null=True
+        default=uuid.uuid4, editable=False, null=True
     )
 
     class Meta:

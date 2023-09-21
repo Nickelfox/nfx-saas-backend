@@ -10,7 +10,7 @@ class Client(BaseModel):
 
     name = models.CharField(max_length=200, unique=True)
     company_id = models.UUIDField(
-        default=uuid.uuid4, editable=False, blank=True, null=True
+        default=uuid.uuid4, editable=False, null=True
     )
 
     class Meta:
