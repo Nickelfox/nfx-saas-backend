@@ -51,13 +51,46 @@ class CustomUserAdmin(admin.ModelAdmin):
             obj.password = make_password(obj.password)
         super().save_model(request, obj, form, change)
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "role":
+            obj = request._obj_
+            if obj:
+                kwargs["queryset"] = AccessRole.objects.filter(
+                    company_id=obj.company_id
+                )
+            else:
+                kwargs["queryset"] = AccessRole.objects.filter(
+                    company_id__exact=None
+                )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_form(self, request, obj=None, **kwargs):
+        # Store the object being edited in the request
+        request._obj_ = obj
+        return super().get_form(request, obj, **kwargs)
+
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
         user = request.user
         if user.is_super_user:
             return True
         else:
-            return module_perm("user", user, "update")
+            edit_perm = module_perm("user", user, "update")
+            if not edit_perm:
+                return False
+            else:
+                if (
+                    obj and obj.is_superuser
+                ):  # Check if the object is associated with a superuser
+                    return False
+                if (
+                    user.role.role_permissions != ss_available_role_permissions
+                ) and (
+                    obj
+                    and obj.role.role_permissions
+                    == ss_available_role_permissions
+                ):  # Compare with all available role permissions
+                    return False  # Superadmins cannot be deleted
 
     def has_view_permission(self, request, obj=None):
         # Check if the user has permission to change the object
@@ -135,8 +168,24 @@ class CustomUserSpecificAdmin(admin.ModelAdmin):
         user = request.user
         if user.is_company_owner:
             return True
+        # if obj and (user.id == obj.id):
+        #     return True
         else:
-            return module_perm("user", user, "update")
+            edit_perm = module_perm("user", user, "update")
+            if not edit_perm:
+                return False
+            else:
+                if obj and obj.is_company_owner:
+                    return False
+                if (
+                    user.role.role_permissions
+                    != com_available_role_permissions
+                ) and (
+                    obj
+                    and obj.role.role_permissions
+                    == com_available_role_permissions
+                ):
+                    return False
 
     def has_view_permission(self, request, obj=None):
         # Check if the user has permission to change the object
@@ -163,9 +212,7 @@ class CustomUserSpecificAdmin(admin.ModelAdmin):
             if not del_perm:
                 return False
             else:
-                if (
-                    obj and obj.is_company_owner
-                ):  # Check if the object is associated with a superuser
+                if obj and obj.is_company_owner:
                     return False
                 if (
                     user.role.role_permissions
@@ -174,8 +221,8 @@ class CustomUserSpecificAdmin(admin.ModelAdmin):
                     obj
                     and obj.role.role_permissions
                     == com_available_role_permissions
-                ):  # Compare with all available role permissions
-                    return False  # Superadmins cannot be deleted
+                ):
+                    return False
 
 
 ss_admin_site.register(User, CustomUserAdmin)
