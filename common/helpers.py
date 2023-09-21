@@ -34,6 +34,7 @@ SS_MODULE_PERMISSIONS = [
             ("add", "Invitations Add"),
             ("update", "Invitations Update"),
             ("delete", "Invitations Delete"),
+            ("regenerate", "Invitations Regenerate"),
         ],
     },
     {
@@ -73,6 +74,7 @@ COM_MODULE_PERMISSIONS = [
             ("add", "Invitations Add"),
             ("update", "Invitations Update"),
             ("delete", "Invitations Delete"),
+            ("regenerate", "Invitations Regenerate"),
         ],
     },
     {
@@ -104,6 +106,7 @@ ss_available_role_permissions = [
     "Invitation:add",
     "Invitation:update",
     "Invitation:delete",
+    "Invitation:regenerate",
     "Role:view",
     "Role:add",
     "Role:update",
@@ -123,6 +126,7 @@ com_available_role_permissions = [
     "Invitation:add",
     "Invitation:update",
     "Invitation:delete",
+    "Invitation:regenerate",
     "Role:view",
     "Role:add",
     "Role:update",
