@@ -28,7 +28,6 @@ class InvitationAdmin(admin.ModelAdmin):
                 user_obj.delete()
             invitation.is_active = True
             invitation.save()
-            # Send the new invite to the email (you should implement this part)
 
     regenerate_invitation.short_description = "Regenerate Invitations"
 

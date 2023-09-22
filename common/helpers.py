@@ -53,6 +53,7 @@ SS_MODULE_PERMISSIONS = [
             ("add", "Companies Add"),
             ("update", "Companies Update"),
             ("delete", "Companies Delete"),
+            ("regenerate", "Invitations Regenerate"),
         ],
     },
 ]
@@ -115,6 +116,7 @@ ss_available_role_permissions = [
     "Company:add",
     "Company:update",
     "Company:delete",
+    "Company:regenerate",
 ]
 
 com_available_role_permissions = [
