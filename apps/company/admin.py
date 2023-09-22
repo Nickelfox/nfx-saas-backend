@@ -23,7 +23,13 @@ class CompanyAdmin(admin.ModelAdmin):
             user_obj = User.objects.filter(email=company.owner_email)
             if user_obj:
                 user_obj.delete()
-            company.is_active = True
+            rev_url = "user:accept_invitation"
+            new_uuid = company.id
+            company.invite_link = (
+                f"{HOST_URL}{reverse(rev_url, args=[str(new_uuid)])}"
+            )
+            company.name = company.name.lower()
+            company.is_active = False
             company.save()
             # Send the new invite to the email (you should implement this part)
 
