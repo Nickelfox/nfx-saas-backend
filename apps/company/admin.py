@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.contrib import admin
+from apps.user.models import User
 from common.helpers import module_perm
 from .models import Company
 from custom_admin import ss_admin_site
@@ -15,6 +16,28 @@ class CompanyAdmin(admin.ModelAdmin):
         "is_active",
     )
     fields = ("name", "owner_name", "owner_email", "invite_link", "is_active")
+
+    def regenerate_invitation(self, request, queryset):
+        for company in queryset:
+            # Generate a new invite_link and send it to the email
+            user_obj = User.objects.filter(email=company.owner_email)
+            if user_obj:
+                user_obj.delete()
+            company.is_active = True
+            company.save()
+            # Send the new invite to the email (you should implement this part)
+
+    regenerate_invitation.short_description = "Regenerate Invitations"
+
+    actions = [regenerate_invitation]
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        user = request.user
+        if not user.is_super_user:
+            if not module_perm("company", user, "regenerate"):
+                actions.pop("regenerate_invitation", None)
+        return actions
 
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id
