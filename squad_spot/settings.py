@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "apps.invitation",
     "apps.client",
     "apps.department",
+    "apps.team",
     "django_extensions",
 ]
 

@@ -15,6 +15,20 @@ SQUAD_SPOT_ADMIN_ROUTE_NAME = "ss-admin"
 COMPANY_ADMIN_ROUTE_NAME = "admin"
 
 
+class Days_choice(TextChoices):
+    """
+    List of work day choices
+    """
+
+    MON = ("MON", "Monday")
+    TUE = ("TUE", "Tuesday")
+    WED = ("WED", "Wednesday")
+    THU = ("THU", "Thursday")
+    FRI = ("FRI", "Friday")
+    SAT = ("SAT", "Saturday")
+    SUN = ("SUN", "Sunday")
+
+
 class ApplicationMessages:
     """
     Response, error etc application messages
