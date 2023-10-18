@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "apps.department",
     "apps.team",
     "apps.project",
+    "apps.schedule",
     "django_extensions",
 ]
 
