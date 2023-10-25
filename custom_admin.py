@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django_restful_admin import admin as rest_admin
 
 
 class SSAdminSite(admin.AdminSite):
@@ -8,6 +9,16 @@ class SSAdminSite(admin.AdminSite):
 
 
 ss_admin_site = SSAdminSite(name="ss-admin")
+
+
+class RESTSSAdminSite(rest_admin.RestFulAdminSite):
+    site_header = "Squad Spot Admin Panel"
+    index_title = "Modules"  # default: "Site administration"
+    site_title = "SS Admin"  # default: "Django site admin"
+    name = "restapi_ss-admin"
+
+
+restapi_ss_admin_site = RESTSSAdminSite()
 
 
 class CompanyAdminSite(admin.AdminSite):
