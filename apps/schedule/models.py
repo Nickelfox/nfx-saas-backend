@@ -1,15 +1,15 @@
 from django.db import models
 from common.models import BaseModel
 from apps.project.models import ProjectMember
-
+import datetime
 
 # Create your models here.
 class Schedule(BaseModel):
     project_member = models.ForeignKey(ProjectMember, on_delete=models.CASCADE)
-    start_at = models.DateTimeField()
-    end_at = models.DateTimeField()
+    start_at = models.DateField()
+    end_at = models.DateField()
     notes = models.TextField()
-    status = models.CharField(max_length=255)
+    assigned_hour = models.DurationField(default=datetime.timedelta(hours=0))  # This defines effort as an interval field
 
     class Meta:
         verbose_name = "Schedule"
