@@ -1,12 +1,62 @@
 from django.contrib import admin
 from custom_admin import company_admin_site
 from apps.department.models import Department
+from apps.team.models import Team
 from common.helpers import module_perm
 
+
 # Register your models here.
+class TeamMemberInline(admin.TabularInline):
+    model = Team
+    fields = [
+        "capacity",
+        "work_days",
+        "user",
+    ]
+    readonly_fields = [
+        "capacity",
+        "work_days",
+        "user",
+    ]
+    extra = 0
+    classes = ("collapse",)
+    can_delete = False
+    show_change_link = True
+
+    def has_change_permission(self, request, obj=None):
+        # Check if the user has permission to change the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("team", user, "update")
+
+    def has_view_permission(self, request, obj=None):
+        # Check if the user has permission to change the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("team", user, "view")
+
+    def has_add_permission(self, request, obj=None):
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("team", user, "add")
+
+    def has_delete_permission(self, request, obj=None):
+        # Check if the user has permission to delete the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("team", user, "delete")
 
 
 class DeparmentSpecificAdmin(admin.ModelAdmin):
+    inlines = [TeamMemberInline]
     list_display = ["name", "id"]
     list_filter = ("name",)
     fields = ["name"]
