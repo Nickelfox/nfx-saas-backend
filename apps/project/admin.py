@@ -8,7 +8,53 @@ from common.helpers import module_perm
 # Register your models here.
 
 
+class MemberInline(admin.TabularInline):
+    model = ProjectMember
+    fields = [
+        "member",
+    ]
+    readonly_fields = [
+        "member",
+    ]
+    extra = 0
+    classes = ("collapse",)
+    can_delete = False
+    show_change_link = True
+
+    def has_change_permission(self, request, obj=None):
+        # Check if the user has permission to change the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("project_member", user, "update")
+
+    def has_view_permission(self, request, obj=None):
+        # Check if the user has permission to change the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("project_member", user, "view")
+
+    def has_add_permission(self, request, obj=None):
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("project_member", user, "add")
+
+    def has_delete_permission(self, request, obj=None):
+        # Check if the user has permission to delete the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("project_member", user, "delete")
+
+
 class ProjectSpecificAdmin(admin.ModelAdmin):
+    inlines = [MemberInline]
     list_display = ["project_name", "client", "start_date", "end_date", "id"]
     list_filter = (
         "client",
