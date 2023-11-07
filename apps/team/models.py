@@ -24,8 +24,8 @@ class Team(BaseModel):
     )
 
     class Meta:
-        verbose_name = "Team"
-        verbose_name_plural = "Teams"
+        verbose_name = "Team Member"
+        verbose_name_plural = "Team Members"
         ordering = ["-created_at"]
 
     def __str__(self):

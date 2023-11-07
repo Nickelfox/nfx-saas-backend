@@ -1,6 +1,7 @@
 from django.contrib import admin
 from apps.department.models import Department
 from apps.user.models import User
+from apps.project.models import Project, ProjectMember
 from custom_admin import company_admin_site
 from apps.team.models import Team
 from common.helpers import module_perm
@@ -17,21 +18,86 @@ class TeamSpecificAdminForm(forms.ModelForm):
         choices=[(day.value, day.label) for day in Days_choice],
         widget=FilteredSelectMultiple("Work Days", is_stacked=False),
         required=False,
+        initial=[
+            "MON",
+            "TUE",
+            "WED",
+            "THU",
+            "FRI",
+        ],  # Set default values for work_days
     )
 
     class Meta:
         model = Team
         fields = [
-            "capacity",
+            "capacity",  # Add the 'capacity' field
             "work_days",
             "user",
             "department",
         ]
 
+    def clean(self):
+        cleaned_data = super().clean()
+        # Set a default value for the "capacity" field if it's not provided
+        if "capacity" not in cleaned_data:
+            cleaned_data["capacity"] = 8
+        return cleaned_data
+
+
+class ProjectInline(admin.TabularInline):
+    model = ProjectMember
+    fields = [
+        "project",
+    ]
+    readonly_fields = [
+        "project",
+    ]
+    extra = 0
+    classes = ("collapse",)
+    can_delete = False
+    show_change_link = True
+
+    def has_change_permission(self, request, obj=None):
+        # Check if the user has permission to change the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("team", user, "update")
+
+    def has_view_permission(self, request, obj=None):
+        # Check if the user has permission to change the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("team", user, "view")
+
+    def has_add_permission(self, request, obj=None):
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("team", user, "add")
+
+    def has_delete_permission(self, request, obj=None):
+        # Check if the user has permission to delete the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("team", user, "delete")
+
 
 class TeamSpecificAdmin(admin.ModelAdmin):
+    inlines = [ProjectInline]
     form = TeamSpecificAdminForm
-    list_display = ["capacity", "department", "work_days", "id"]
+    list_display = [
+        "id",
+        "capacity",
+        "department",
+        "work_days",
+    ]
     list_filter = ("department",)
 
     def save_model(self, request, obj, form, change):
