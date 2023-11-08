@@ -3,6 +3,8 @@ from django.db import models
 from apps.role.models import AccessRole
 from common.models import BaseModel
 from apps.company.models import Company
+from rest_framework_simplejwt.tokens import RefreshToken
+from datetime import timedelta
 
 
 class MyUserManager(BaseUserManager):
@@ -86,3 +88,12 @@ class User(AbstractBaseUser, BaseModel):
     """
     To create a new instance of User model
     """
+    """
+    For retrieving tokens from simple-jwt
+    """
+
+    def tokens(self, remember_me=False):
+        refresh = RefreshToken.for_user(self)
+        if remember_me:
+            refresh.set_exp(lifetime=timedelta(minutes=10))
+        return {"refresh": str(refresh), "access": str(refresh.access_token)}

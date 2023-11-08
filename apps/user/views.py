@@ -11,6 +11,14 @@ from django.views.generic import TemplateView
 from .forms import AcceptInvitationForm
 from django.contrib.auth.hashers import make_password
 from squad_spot.settings import HOST_URL, COMPANY_ADMIN_URL
+from rest_framework.response import Response
+from rest_framework.validators import ValidationError
+from rest_framework import views, status, parsers, generics
+from apps.user import serializers
+from apps.user import models as user_models
+from common.constants import ApplicationMessages
+from django.contrib.auth import authenticate
+from common import auth as user_auth
 
 
 class AcceptInvitationView(FormView):
@@ -126,3 +134,86 @@ class PasswordSetSuccessView(TemplateView):
             login_url = f"{HOST_URL}/ss-admin/"
         context["login_url"] = login_url
         return context
+
+
+class UserLoginAPIView(views.APIView):
+    """
+    Login API for Admin
+    """
+
+    serializer_class = serializers.LoginSerializer
+
+    def get_queryset(self, email):
+        """Returns the User instance if exist"""
+        try:
+            # role = user_models.Role.objects.filter(
+            #     name__in=[Constants.ADMIN, Constants.SUBADMIN]
+            # )
+            user_instance = user_models.User.objects.filter(
+                email=email, is_active=True
+            )
+            if len(user_instance) > 1:
+                raise ValidationError(
+                    ApplicationMessages.EMAIL_PASSWORD_INCORRECT
+                )
+            return user_instance.first()
+        except Exception:
+            raise ValidationError(ApplicationMessages.EMAIL_PASSWORD_INCORRECT)
+
+    def post(self, request, *args, **kwargs):
+        """Login as well as create a session"""
+
+        request.data["email"] = request.data.get("email").lower()
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user_instance = self.get_queryset(
+                serializer.validated_data.get("email")
+            )
+            if not user_instance:
+                return Response(
+                    ApplicationMessages.USER_NOT_ACTIVE,
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            data = user_auth.AuthManager.login_user_email(
+                user_instance,
+                password=serializer.data.get("password"),
+                data=serializer.validated_data,
+            )
+            if data:
+                return Response(data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    ApplicationMessages.EMAIL_PASSWORD_INCORRECT,
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutAPIView(views.APIView):
+    """
+    Logout  api view
+    """
+
+    user_model = user_models.User
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Delete session
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        try:
+            user = self.user_model.objects.get(id=request.user.id)
+
+            user_auth.logout_all_session(user)
+            return Response(
+                ApplicationMessages.LOGOUT_SUCCESSFULLY,
+                status=status.HTTP_200_OK,
+            )
+        except self.user_model.DoesNotExist:
+            return Response(
+                ApplicationMessages.LOGOUT_FAILED,
+                status=status.HTTP_400_BAD_REQUEST,
+            )

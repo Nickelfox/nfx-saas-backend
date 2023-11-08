@@ -51,3 +51,10 @@ class ApplicationMessages:
     INVITATION_INVALID = """
     Invitation link expired.
     Please Contact your Admin for valid invitation link."""
+    EMAIL_PASSWORD_INCORRECT = "Invalid Email Or Password"
+    INVALID_PASSWORD = "Invalid Email Or Password"
+    INVALID_EMAIL = "You are not logged in with the same email id".title()
+    LOGOUT_SUCCESSFULLY = "Logout is successful".title()
+    LOGOUT_FAILED = "Logout Failed. Contact admin.".title()
+    USER_NOT_ACTIVE = "User is not active".title()
+    SUCCESS = "Success"
