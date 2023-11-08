@@ -121,7 +121,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         # Check if the user has permission to update this project
         req_user = request.user
         if req_user.is_company_owner or module_perm(
-            "project", req_user, "change"
+            "project", req_user, "update"
         ):
             serializer = self.get_serializer(instance, data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -147,7 +147,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         # Check if the user has permission to partially update this project
         req_user = request.user
         if req_user.is_company_owner or module_perm(
-            "project", req_user, "change"
+            "project", req_user, "update"
         ):
             serializer = self.get_serializer(
                 instance, data=request.data, partial=True
@@ -308,7 +308,7 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
         # Check if the user has permission to update this project
         req_user = request.user
         if req_user.is_company_owner or module_perm(
-            "project_member", req_user, "change"
+            "project_member", req_user, "update"
         ):
             serializer = self.get_serializer(instance, data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -334,7 +334,7 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
         # Check if the user has permission to partially update this project
         req_user = request.user
         if req_user.is_company_owner or module_perm(
-            "project_member", req_user, "change"
+            "project_member", req_user, "update"
         ):
             serializer = self.get_serializer(
                 instance, data=request.data, partial=True

@@ -25,11 +25,13 @@ from common.constants import (
 )
 from rest_framework.routers import DefaultRouter
 from apps.project.views import ProjectViewSet, ProjectMemberViewSet
+from apps.department.views import DepartmentViewSet
 
 # Create a router for automatic URL routing
 router = DefaultRouter()
 router.register(r"projects", ProjectViewSet)
 router.register(r"project-members", ProjectMemberViewSet)
+router.register(r"departments", DepartmentViewSet)
 
 urlpatterns = [
     path(f"{COMPANY_ADMIN_ROUTE_NAME}/", company_admin_site.urls),
