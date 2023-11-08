@@ -1,15 +1,13 @@
 from django.urls import reverse
 from django.contrib import admin
-# from django_restful_admin import admin as rest_admin
 from apps.user.models import User
 from common.helpers import module_perm
 from .models import Company
 from custom_admin import ss_admin_site
-# restapi_ss_admin_site
 from squad_spot.settings import HOST_URL
 
 
-class CompanyAdmin(admin.ModelAdmin): 
+class CompanyAdmin(admin.ModelAdmin):
     list_display = ("name", "owner_email", "invite_link", "is_active")
     list_filter = ("is_active",)
     search_fields = ("name", "owner_email")
@@ -71,4 +69,3 @@ class CompanyAdmin(admin.ModelAdmin):
 
 
 ss_admin_site.register(Company, CompanyAdmin)
-# restapi_ss_admin_site.register(Company, RESTCompanyAdmin)
