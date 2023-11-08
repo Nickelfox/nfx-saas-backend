@@ -23,9 +23,17 @@ from common.constants import (
     SQUAD_SPOT_ADMIN_ROUTE_NAME,
     COMPANY_ADMIN_ROUTE_NAME,
 )
+from rest_framework.routers import DefaultRouter
+from apps.project.views import ProjectViewSet, ProjectMemberViewSet
+
+# Create a router for automatic URL routing
+router = DefaultRouter()
+router.register(r"projects", ProjectViewSet)
+router.register(r"project-members", ProjectMemberViewSet)
 
 urlpatterns = [
     path(f"{COMPANY_ADMIN_ROUTE_NAME}/", company_admin_site.urls),
     path("user/", include("apps.user.urls")),
     path(f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}/", ss_admin_site.urls),
+    path("api/", include(router.urls)),
 ]

@@ -13,7 +13,7 @@ from django.contrib.auth.hashers import make_password
 from squad_spot.settings import HOST_URL, COMPANY_ADMIN_URL
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
-from rest_framework import views, status, parsers, generics
+from rest_framework import views, status, parsers, generics, permissions
 from apps.user import serializers
 from apps.user import models as user_models
 from common.constants import ApplicationMessages
@@ -194,6 +194,7 @@ class LogoutAPIView(views.APIView):
     Logout  api view
     """
 
+    permission_classes = [permissions.IsAuthenticated]
     user_model = user_models.User
 
     def delete(self, request, *args, **kwargs):
