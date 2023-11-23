@@ -28,14 +28,12 @@ class TeamSpecificAdmin(admin.ModelAdmin):
             obj.save()
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        user = request.user
         if db_field.name == "department":
-            user = request.user
-            kwargs["queryset"] = Department.objects.filter(
-                company_id=user.company_id
-            )
+            model = Department
         if db_field.name == "user":
-            user = request.user
-            kwargs["queryset"] = User.objects.filter(company=user.company_id)
+            model = User
+        kwargs["queryset"] = model.objects.filter(company=user.company_id)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_queryset(self, request):
