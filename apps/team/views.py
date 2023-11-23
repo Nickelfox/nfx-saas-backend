@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
 from .models import Team
-from .serializers import TeamSerializer
+from .serializers import TeamSerializer, TeamListSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
@@ -10,6 +10,7 @@ from common.constants import ApplicationMessages
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+    serializer_class_list = TeamListSerializer
     filter_backends = [
         filters.OrderingFilter,
         filters.SearchFilter,
@@ -41,7 +42,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         req_user = request.user
         if req_user.is_company_owner or module_perm("team", req_user, "view"):
             queryset = self.filter_queryset(self.get_queryset())
-            serializer = self.get_serializer(queryset, many=True)
+            serializer = self.serializer_class_list(queryset, many=True)
             return Response(
                 {
                     "status": ApplicationMessages.SUCCESS,

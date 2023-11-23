@@ -18,3 +18,15 @@ class LoginSerializer(serializers.Serializer):
         """will check email"""
         email = email.lower()
         return email
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = user_models.User
+        fields = (
+            "full_name",
+            "email",
+            "role",
+            "phone_number",
+            "designation",
+        )
