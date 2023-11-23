@@ -39,6 +39,11 @@ class Project_type(TextChoices):
     NON_BILLABLE = ("NON_BILLABLE", "Non Billable")
 
 
+class Schedule_type(TextChoices):
+    WORK = ("WORK", "Work")
+    TIME_OFF = ("TIME_OFF", "Time Off")
+
+
 class ApplicationMessages:
     """
     Response, error etc application messages
