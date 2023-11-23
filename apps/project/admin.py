@@ -13,11 +13,7 @@ class MemberInline(admin.TabularInline):
     fields = [
         "member",
     ]
-    readonly_fields = [
-        "member",
-    ]
     extra = 0
-    classes = ("collapse",)
     can_delete = False
     show_change_link = True
 

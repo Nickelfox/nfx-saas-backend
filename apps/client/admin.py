@@ -22,17 +22,7 @@ class ProjectInline(admin.TabularInline):
         "project_type",
         "notes",
     ]
-    readonly_fields = [
-        "project_name",
-        "project_code",
-        "client",
-        "start_date",
-        "end_date",
-        "project_type",
-        "notes",
-    ]
     extra = 0
-    classes = ("collapse",)
     can_delete = False
     show_change_link = True
 

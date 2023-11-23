@@ -13,13 +13,7 @@ class TeamMemberInline(admin.TabularInline):
         "work_days",
         "user",
     ]
-    readonly_fields = [
-        "capacity",
-        "work_days",
-        "user",
-    ]
     extra = 0
-    classes = ("collapse",)
     can_delete = False
     show_change_link = True
 
