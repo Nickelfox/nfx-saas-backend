@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.urls import reverse
-from apps.invitation.helpers import reinvite_user
 
 from apps.user.models import User
 from .models import Invitation
@@ -24,7 +23,11 @@ class InvitationAdmin(admin.ModelAdmin):
     def regenerate_invitation(self, request, queryset):
         for invitation in queryset:
             # Generate a new invite_link and send it to the email
-            reinvite_user(invitation)
+            user_obj = User.objects.filter(email=invitation.email)
+            if user_obj:
+                user_obj.delete()
+            invitation.is_active = True
+            invitation.save()
 
     regenerate_invitation.short_description = "Regenerate Invitations"
 

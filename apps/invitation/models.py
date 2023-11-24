@@ -2,7 +2,7 @@ from django.db import models
 from common.models import BaseModel
 from common.constants import Invite_type
 from apps.role.models import AccessRole
-from apps.company.models import Company
+import uuid
 
 # Create your models here.
 
@@ -19,8 +19,8 @@ class Invitation(BaseModel):
         choices=Invite_type.choices,  # Use the choices from Invite_type
         default=Invite_type.INTERNAL,  # Set a default choice if needed
     )
-    company = models.ForeignKey(
-        Company, on_delete=models.PROTECT, null=True, blank=True
+    company_id = models.UUIDField(
+        default=uuid.uuid4, editable=False, null=True
     )
     is_active = models.BooleanField(default=True)
 
