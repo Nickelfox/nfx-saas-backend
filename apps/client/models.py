@@ -1,6 +1,6 @@
 from django.db import models
 from common.models import BaseModel
-import uuid
+from apps.company.models import Company
 
 # Create your models here.
 
@@ -9,8 +9,8 @@ class Client(BaseModel):
     """Create a single model for client"""
 
     name = models.CharField(max_length=200, unique=True)
-    company_id = models.UUIDField(
-        default=uuid.uuid4, editable=False, null=True
+    company = models.ForeignKey(
+        Company, on_delete=models.PROTECT, null=True, blank=True
     )
 
     class Meta:

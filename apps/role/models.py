@@ -1,6 +1,6 @@
-import uuid
 from django.db import models
 from common.models import BaseModel
+from apps.company.models import Company
 
 # Define the choices for RoleModule as a tuple of tuples
 
@@ -11,8 +11,8 @@ class AccessRole(BaseModel):
     name = models.CharField(max_length=200, unique=True)
     description = models.TextField(null=True, blank=True)
     role_permissions = models.JSONField(default=dict)
-    company_id = models.UUIDField(
-        default=uuid.uuid4, editable=False, null=True
+    company = models.ForeignKey(
+        Company, on_delete=models.PROTECT, null=True, blank=True
     )
 
     class Meta:
