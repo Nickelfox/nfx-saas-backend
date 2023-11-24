@@ -1,12 +1,75 @@
 from django.contrib import admin
 from custom_admin import company_admin_site
 from apps.client.models import Client
+from apps.project.models import Project
 from common.helpers import module_perm
 
 # Register your models here.
 
 
+class ProjectInline(admin.TabularInline):
+    model = Project
+    list_filter = (
+        "client",
+        "project_type",
+    )
+    fields = [
+        "project_name",
+        "project_code",
+        "client",
+        "start_date",
+        "end_date",
+        "project_type",
+        "notes",
+    ]
+    readonly_fields = [
+        "project_name",
+        "project_code",
+        "client",
+        "start_date",
+        "end_date",
+        "project_type",
+        "notes",
+    ]
+    extra = 0
+    classes = ("collapse",)
+    can_delete = False
+    show_change_link = True
+
+    def has_change_permission(self, request, obj=None):
+        # Check if the user has permission to change the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("project", user, "update")
+
+    def has_view_permission(self, request, obj=None):
+        # Check if the user has permission to change the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("project", user, "view")
+
+    def has_add_permission(self, request, obj=None):
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("project", user, "add")
+
+    def has_delete_permission(self, request, obj=None):
+        # Check if the user has permission to delete the object
+        user = request.user
+        if user.is_company_owner:
+            return True
+        else:
+            return module_perm("project", user, "delete")
+
+
 class ClientSpecificAdmin(admin.ModelAdmin):
+    inlines = [ProjectInline]
     list_display = ["name", "id"]
     fields = ["name"]
 

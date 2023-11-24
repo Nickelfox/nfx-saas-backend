@@ -97,6 +97,15 @@ COM_MODULE_PERMISSIONS = [
         ],
     },
     {
+        "module": "Department",
+        "permissions": [
+            ("view", "Departments View"),
+            ("add", "Departments Add"),
+            ("update", "Departments Update"),
+            ("delete", "Departments Delete"),
+        ],
+    },
+    {
         "module": "Team",
         "permissions": [
             ("view", "Teams View"),
@@ -173,6 +182,10 @@ com_available_role_permissions = [
     "Client:add",
     "Client:update",
     "Client:delete",
+    "Department:view",
+    "Department:add",
+    "Department:update",
+    "Department:delete",
     "Team:view",
     "Team:add",
     "Team:update",
