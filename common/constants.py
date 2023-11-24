@@ -29,6 +29,16 @@ class Days_choice(TextChoices):
     SUN = ("SUN", "Sunday")
 
 
+class Project_type(TextChoices):
+    """
+    List of Project types
+    """
+
+    VARIABLE = ("VARIABLE", "Variable By Hour")
+    FIXED = ("FIXED", "Fixed Fee")
+    NON_BILLABLE = ("NON_BILLABLE", "Non Billable")
+
+
 class ApplicationMessages:
     """
     Response, error etc application messages

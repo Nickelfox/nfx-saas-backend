@@ -4,19 +4,35 @@ from apps.user.models import User
 from custom_admin import company_admin_site
 from apps.team.models import Team
 from common.helpers import module_perm
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from common.constants import Days_choice
+from django import forms
 
 # Register your models here.
 
 
+class TeamSpecificAdminForm(forms.ModelForm):
+    # Create a list of choices based on the Days_choice enumeration
+    work_days = forms.MultipleChoiceField(
+        choices=[(day.value, day.label) for day in Days_choice],
+        widget=FilteredSelectMultiple("Work Days", is_stacked=False),
+        required=False,
+    )
+
+    class Meta:
+        model = Team
+        fields = [
+            "capacity",
+            "work_days",
+            "user",
+            "department",
+        ]
+
+
 class TeamSpecificAdmin(admin.ModelAdmin):
+    form = TeamSpecificAdminForm
     list_display = ["capacity", "department", "work_days", "id"]
     list_filter = ("department",)
-    fields = [
-        "capacity",
-        "work_days",
-        "user",
-        "department",
-    ]
 
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id
