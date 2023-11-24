@@ -15,6 +15,30 @@ SQUAD_SPOT_ADMIN_ROUTE_NAME = "ss-admin"
 COMPANY_ADMIN_ROUTE_NAME = "admin"
 
 
+class Days_choice(TextChoices):
+    """
+    List of work day choices
+    """
+
+    MON = ("MON", "Monday")
+    TUE = ("TUE", "Tuesday")
+    WED = ("WED", "Wednesday")
+    THU = ("THU", "Thursday")
+    FRI = ("FRI", "Friday")
+    SAT = ("SAT", "Saturday")
+    SUN = ("SUN", "Sunday")
+
+
+class Project_type(TextChoices):
+    """
+    List of Project types
+    """
+
+    VARIABLE = ("VARIABLE", "Variable By Hour")
+    FIXED = ("FIXED", "Fixed Fee")
+    NON_BILLABLE = ("NON_BILLABLE", "Non Billable")
+
+
 class ApplicationMessages:
     """
     Response, error etc application messages
