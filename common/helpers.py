@@ -96,6 +96,42 @@ COM_MODULE_PERMISSIONS = [
             ("delete", "Clients Delete"),
         ],
     },
+    {
+        "module": "Team",
+        "permissions": [
+            ("view", "Teams View"),
+            ("add", "Teams Add"),
+            ("update", "Teams Update"),
+            ("delete", "Teams Delete"),
+        ],
+    },
+    {
+        "module": "Project",
+        "permissions": [
+            ("view", "Projects View"),
+            ("add", "Projects Add"),
+            ("update", "Projects Update"),
+            ("delete", "Projects Delete"),
+        ],
+    },
+    {
+        "module": "Project_Member",
+        "permissions": [
+            ("view", "Project_Members View"),
+            ("add", "Project_Members Add"),
+            ("update", "Project_Members Update"),
+            ("delete", "Project_Members Delete"),
+        ],
+    },
+    {
+        "module": "Schedule",
+        "permissions": [
+            ("view", "Schedules View"),
+            ("add", "Schedules Add"),
+            ("update", "Schedules Update"),
+            ("delete", "Schedules Delete"),
+        ],
+    },
 ]
 
 ss_available_role_permissions = [
@@ -137,4 +173,20 @@ com_available_role_permissions = [
     "Client:add",
     "Client:update",
     "Client:delete",
+    "Team:view",
+    "Team:add",
+    "Team:update",
+    "Team:delete",
+    "Project:view",
+    "Project:add",
+    "Project:update",
+    "Project:delete",
+    "Project_member:view",
+    "Project_member:add",
+    "Project_member:update",
+    "Project_member:delete",
+    "Schdeule:view",
+    "Schdeule:add",
+    "Schdeule:update",
+    "Schdeule:delete",
 ]

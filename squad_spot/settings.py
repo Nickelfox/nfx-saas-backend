@@ -56,7 +56,10 @@ INSTALLED_APPS = [
     "apps.department",
     "apps.team",
     "apps.project",
+    "apps.schedule",
     "django_extensions",
+    # "django_restful_admin",
+    # "django_api_admin",
 ]
 
 # settings.py
