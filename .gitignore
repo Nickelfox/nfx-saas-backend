@@ -60,4 +60,4 @@ coverage.xml
 Thumbs.db
 Desktop.ini
 sqsp.log
-static/
+# static/
