@@ -29,10 +29,11 @@ class AccessRoleAdminForm(forms.ModelForm):
 
 class AccessRoleAdmin(admin.ModelAdmin):
     form = AccessRoleAdminForm
-    list_display = ["name", "id", "role_permissions"]
+    list_display = ["name", "org_name", "id", "role_permissions"]
 
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id
+        obj.org_name = "sqsp"
         super().save_model(request, obj, form, change)
 
         # Check if this is a new invitation being added (not an update)
@@ -95,6 +96,7 @@ class AccessRoleSpecificAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id
+        obj.org_name = f"{request.user.company.name}-{request.user.company_id}"
         super().save_model(request, obj, form, change)
 
         # Check if this is a new invitation being added (not an update)
