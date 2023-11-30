@@ -188,7 +188,7 @@ class CustomUserSpecificAdmin(admin.ModelAdmin):
                     == com_available_role_permissions
                 ):
                     return False
-                return True
+            return True
 
     def has_view_permission(self, request, obj=None):
         # Check if the user has permission to change the object
@@ -226,7 +226,7 @@ class CustomUserSpecificAdmin(admin.ModelAdmin):
                     == com_available_role_permissions
                 ):
                     return False
-                return True
+            return True
 
 
 ss_admin_site.register(User, CustomUserAdmin)
