@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
 from .models import Schedule
-from .serializers import ScheduleSerializer
+from .serializers import ScheduleSerializer, SchedulelistSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
@@ -12,6 +12,7 @@ from datetime import datetime
 class ScheduleViewSet(viewsets.ModelViewSet):
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
+    serializer_class_list = SchedulelistSerializer
     filter_backends = [
         filters.OrderingFilter,
         filters.SearchFilter,
@@ -64,7 +65,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(
                     start_at__lte=end_date, end_at__gte=start_date
                 )
-            serializer = self.get_serializer(queryset, many=True)
+            serializer = self.serializer_class_list(queryset, many=True)
             return Response(
                 {
                     "status": ApplicationMessages.SUCCESS,
