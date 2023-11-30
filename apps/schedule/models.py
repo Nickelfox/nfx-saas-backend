@@ -10,7 +10,7 @@ class Schedule(BaseModel):
     project_member = models.ForeignKey(ProjectMember, on_delete=models.CASCADE)
     start_at = models.DateField()
     end_at = models.DateField()
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True)
     assigned_hour = models.DurationField(
         default=datetime.timedelta(hours=0)
     )  # This defines effort as an interval field
