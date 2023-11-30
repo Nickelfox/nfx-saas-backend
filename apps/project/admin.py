@@ -138,16 +138,12 @@ class ProjectMemberSpecificAdmin(admin.ModelAdmin):
     ]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        user = request.user
         if db_field.name == "project":
-            user = request.user
-            kwargs["queryset"] = Project.objects.filter(
-                company_id=user.company_id
-            )
-        if db_field.name == "team":
-            user = request.user
-            kwargs["queryset"] = Team.objects.filter(
-                company_id=user.company_id
-            )
+            model = Project
+        if db_field.name == "member":
+            model = Team
+        kwargs["queryset"] = model.objects.filter(company_id=user.company_id)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_queryset(self, request):
