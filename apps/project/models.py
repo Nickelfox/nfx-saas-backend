@@ -17,6 +17,7 @@ class Project(BaseModel):
     )
     project_name = models.CharField(max_length=255)
     project_code = models.CharField(max_length=255, null=True, blank=True)
+    color_code = models.CharField(max_length=255, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
@@ -35,7 +36,7 @@ class Project(BaseModel):
 
     def __str__(self):
         """String representation of projects"""
-        return "{} - {}".format(self.project_name, self.id)
+        return "{}".format(self.project_name)
 
 
 class ProjectMember(BaseModel):
@@ -49,6 +50,7 @@ class ProjectMember(BaseModel):
 
     def __str__(self):
         """String representation of project members"""
-        return "{} - {} - {}".format(
-            self.project.project_name, self.member.user.full_name, self.id
+        return "{} - {}".format(
+            self.project.project_name,
+            self.member.user.full_name,
         )

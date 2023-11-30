@@ -64,7 +64,11 @@ class User(AbstractBaseUser, BaseModel):
         String representation of name
         :return:
         """
-        return "{}-{}--{}".format(self.email, self.id, self.role)
+        return "{}-{}-{}".format(
+            self.full_name,
+            self.email,
+            self.role,
+        )
 
     def has_perm(self, perm, obj=None):
         """Does the user have a specific permission?"""
