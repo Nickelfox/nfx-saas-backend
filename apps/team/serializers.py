@@ -10,6 +10,7 @@ class TeamSerializer(serializers.ModelSerializer):
         model = Team
         fields = (
             "id",
+            "emp_id",
             "capacity",
             "department",
             "work_days",
@@ -28,6 +29,7 @@ class TeamListSerializer(serializers.ModelSerializer):
         model = Team
         fields = (
             "id",
+            "emp_id",
             "capacity",
             "department",
             "work_days",

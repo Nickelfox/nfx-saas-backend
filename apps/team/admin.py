@@ -30,7 +30,8 @@ class TeamSpecificAdminForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = [
-            "capacity",  # Add the 'capacity' field
+            "capacity",
+            "emp_id",
             "work_days",
             "user",
             "department",
@@ -91,6 +92,7 @@ class TeamSpecificAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "capacity",
+        "emp_id",
         "department",
         "work_days",
     ]
