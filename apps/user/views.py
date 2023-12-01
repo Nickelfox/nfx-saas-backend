@@ -1,9 +1,10 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render
-
+from django_filters.rest_framework import DjangoFilterBackend
 from apps.invitation.models import Invitation
 from common.constants import Invite_type, ApplicationMessages
+from common.helpers import module_perm
 from .models import User
 from apps.company.models import Company
 from django.views.generic.edit import FormView
@@ -13,7 +14,7 @@ from django.contrib.auth.hashers import make_password
 from squad_spot.settings import HOST_URL, COMPANY_ADMIN_URL
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
-from rest_framework import views, status, parsers, generics, permissions
+from rest_framework import views, status, viewsets, permissions, filters
 from apps.user import serializers
 from apps.user import models as user_models
 from common.constants import ApplicationMessages
@@ -223,4 +224,130 @@ class LogoutAPIView(views.APIView):
             return Response(
                 ApplicationMessages.LOGOUT_FAILED,
                 status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserListSerializer
+    filter_backends = [
+        filters.OrderingFilter,
+        filters.SearchFilter,
+        DjangoFilterBackend,
+    ]  # Add DjangoFilterBackend
+    filterset_fields = [
+        "id",
+        "email",
+        "role",
+    ]  # Define the fields available for filtering
+
+    # Define fields available for filtering and ordering
+    ordering_fields = [
+        "full_name",
+        "email",
+    ]
+    search_fields = [
+        "id",
+        "full_name",
+    ]
+
+    def get_queryset(self):
+        user = self.request.user
+        return User.objects.filter(company_id=user.company_id)
+
+    def list(self, request):
+        req_user = request.user
+        if req_user.is_company_owner or module_perm("user", req_user, "view"):
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(
+                {
+                    "status": ApplicationMessages.SUCCESS,
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {
+                    "status": "error",
+                    "message": ApplicationMessages.PERMISSION_DENIED,
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+    def retrieve(self, request, pk=None):
+        instance = self.get_object()
+
+        req_user = request.user
+        if req_user.is_company_owner or module_perm("user", req_user, "view"):
+            serializer = self.get_serializer(instance)
+            return Response(
+                {
+                    "status": ApplicationMessages.SUCCESS,
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {
+                    "status": "error",
+                    "message": ApplicationMessages.PERMISSION_DENIED,
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+    def update(self, request, pk=None):
+        instance = self.get_object()
+
+        req_user = request.user
+        if req_user.is_company_owner or module_perm(
+            "user", req_user, "update"
+        ):
+            serializer = self.get_serializer(instance, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(
+                {
+                    "status": ApplicationMessages.SUCCESS,
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {
+                    "status": "error",
+                    "message": ApplicationMessages.PERMISSION_DENIED,
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+    def partial_update(self, request, pk=None):
+        instance = self.get_object()
+
+        req_user = request.user
+        if req_user.is_company_owner or module_perm(
+            "user", req_user, "update"
+        ):
+            serializer = self.get_serializer(
+                instance, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(
+                {
+                    "status": ApplicationMessages.SUCCESS,
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {
+                    "status": "error",
+                    "message": ApplicationMessages.PERMISSION_DENIED,
+                },
+                status=status.HTTP_403_FORBIDDEN,
             )

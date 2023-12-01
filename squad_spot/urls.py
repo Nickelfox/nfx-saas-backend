@@ -40,6 +40,7 @@ router.register(r"project-members", ProjectMemberViewSet)
 router.register(r"departments", DepartmentViewSet)
 router.register(r"team-members", TeamViewSet)
 router.register(r"schedules", ScheduleViewSet)
+router.register(r"users", user_views.UserViewSet)
 
 urlpatterns = [
     path(f"{COMPANY_ADMIN_ROUTE_NAME}/", company_admin_site.urls),
