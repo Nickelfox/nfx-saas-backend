@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include
+from apps.client.views import ClientViewSet
 from apps.user import views as user_views
 from custom_admin import (
     ss_admin_site,
@@ -41,6 +42,7 @@ router.register(r"departments", DepartmentViewSet)
 router.register(r"team-members", TeamViewSet)
 router.register(r"schedules", ScheduleViewSet)
 router.register(r"users", user_views.UserViewSet)
+router.register(r"clients", ClientViewSet)
 
 urlpatterns = [
     path(f"{COMPANY_ADMIN_ROUTE_NAME}/", company_admin_site.urls),
