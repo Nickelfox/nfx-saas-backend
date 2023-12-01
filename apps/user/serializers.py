@@ -24,6 +24,7 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = user_models.User
         fields = (
+            "id",
             "full_name",
             "email",
             "role",
