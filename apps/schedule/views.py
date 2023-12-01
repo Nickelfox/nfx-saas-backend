@@ -1,11 +1,16 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
+from apps.project.models import Project
+
+from apps.schedule.utils import calculate_working_days
+from apps.team.models import Team
 from .models import Schedule
 from .serializers import ScheduleSerializer, SchedulelistSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
 from datetime import datetime
+from rest_framework import views
 
 
 # Create your views here.
@@ -212,3 +217,25 @@ class ScheduleViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
+
+
+class TimelineProjectAPIView(views.APIView):
+    def get_queryset(self):
+        # Filter projects by the user's company
+        user = self.request.user
+        return Project.objects.filter(company_id=user.company_id)
+
+    def get(self, request):
+        req_user = request.user
+        result = {}
+        queryset = self.get_queryset()
+        start_date = request.query_params.get("start_date", None)
+        if start_date:
+            result = calculate_working_days(start_date, queryset)
+        return Response(
+            {
+                "status": ApplicationMessages.SUCCESS,
+                "data": result,
+            },
+            status=status.HTTP_200_OK,
+        )
