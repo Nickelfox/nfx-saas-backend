@@ -106,6 +106,8 @@ SIMPLE_JWT = {
     "TOKEN_TYPE_CLAIM": "token_type",
 }
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 ROOT_URLCONF = "squad_spot.urls"
 
 TEMPLATES = [
