@@ -203,20 +203,34 @@ class LogoutAPIView(views.APIView):
             qs = OutstandingToken.objects.filter(user=user)
             if qs.exists():
                 qs.delete()
-
                 return Response(
-                    ApplicationMessages.LOGOUT_SUCCESSFULLY,
+                    {
+                        "status": status.HTTP_200_OK,
+                        "message": ApplicationMessages.LOGOUT_SUCCESSFULLY,
+                        "error": False,
+                        "data": {},
+                    },
                     status=status.HTTP_200_OK,
                 )
             else:
                 # Handle the case where qs is empty
                 return Response(
-                    ApplicationMessages.LOGOUT_FAILED_NO_TOKEN,
+                    {
+                        "status": status.HTTP_400_BAD_REQUEST,
+                        "message": ApplicationMessages.LOGOUT_FAILED_NO_TOKEN,
+                        "error": False,
+                        "data": {},
+                    },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         except self.user_model.DoesNotExist:
             return Response(
-                ApplicationMessages.LOGOUT_FAILED,
+                {
+                    "status": status.HTTP_400_BAD_REQUEST,
+                    "message": ApplicationMessages.LOGOUT_FAILED,
+                    "error": False,
+                    "data": {},
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
