@@ -1,5 +1,7 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
+
+from apps.client.filters import ClientFilter
 from .models import Client
 from .serializers import ClientSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,6 +17,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    filterset_class = ClientFilter
     filterset_fields = [
         "id",
         "name",
@@ -42,7 +45,9 @@ class ClientViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(queryset, many=True)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -50,8 +55,10 @@ class ClientViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -69,7 +76,9 @@ class ClientViewSet(viewsets.ModelViewSet):
 
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_201_CREATED,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -77,8 +86,10 @@ class ClientViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -93,7 +104,9 @@ class ClientViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -101,8 +114,10 @@ class ClientViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -119,7 +134,9 @@ class ClientViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -127,8 +144,10 @@ class ClientViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -147,7 +166,9 @@ class ClientViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -155,8 +176,10 @@ class ClientViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -171,16 +194,20 @@ class ClientViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_204_NO_CONTENT,
                     "message": ApplicationMessages.DELETED_SUCCESS,
+                    "error": False,
+                    "data": {},
                 },
                 status=status.HTTP_204_NO_CONTENT,
             )
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
