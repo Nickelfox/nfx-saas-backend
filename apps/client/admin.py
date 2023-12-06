@@ -1,8 +1,10 @@
 from django.contrib import admin
+from apps.client.resources import ClientResource
 from custom_admin import company_admin_site
 from apps.client.models import Client
 from apps.project.models import Project
 from common.helpers import module_perm
+from import_export.admin import ImportExportModelAdmin
 
 # Register your models here.
 
@@ -57,7 +59,8 @@ class ProjectInline(admin.TabularInline):
             return module_perm("project", user, "delete")
 
 
-class ClientSpecificAdmin(admin.ModelAdmin):
+class ClientSpecificAdmin(ImportExportModelAdmin):
+    resource_class = ClientResource
     inlines = [ProjectInline]
     list_display = ["name", "id"]
     fields = ["name"]
