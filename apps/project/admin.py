@@ -1,9 +1,11 @@
 from django.contrib import admin
 from apps.project.models import Project, ProjectMember
+from apps.project.resources import ProjectResource
 from apps.team.models import Team
 from apps.client.models import Client
 from custom_admin import company_admin_site
 from common.helpers import module_perm
+from import_export.admin import ImportExportModelAdmin
 
 # Register your models here.
 
@@ -49,7 +51,8 @@ class MemberInline(admin.TabularInline):
             return module_perm("project_member", user, "delete")
 
 
-class ProjectSpecificAdmin(admin.ModelAdmin):
+class ProjectSpecificAdmin(ImportExportModelAdmin):
+    resource_class = ProjectResource
     inlines = [MemberInline]
     list_display = ["project_name", "client", "start_date", "end_date", "id"]
     list_filter = (
