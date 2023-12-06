@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from apps.invitation.models import Invitation
+from apps.user.filters import UserFilter
 from common.constants import Invite_type, ApplicationMessages
 from common.helpers import module_perm
 from .models import User
@@ -205,18 +206,33 @@ class LogoutAPIView(views.APIView):
                 qs.delete()
 
                 return Response(
-                    ApplicationMessages.LOGOUT_SUCCESSFULLY,
+                    {
+                        "status": status.HTTP_200_OK,
+                        "message": ApplicationMessages.LOGOUT_SUCCESSFULLY,
+                        "error": False,
+                        "data": {},
+                    },
                     status=status.HTTP_200_OK,
                 )
             else:
                 # Handle the case where qs is empty
                 return Response(
-                    ApplicationMessages.LOGOUT_FAILED_NO_TOKEN,
+                    {
+                        "status": status.HTTP_400_BAD_REQUEST,
+                        "message": ApplicationMessages.LOGOUT_FAILED_NO_TOKEN,
+                        "error": True,
+                        "data": {},
+                    },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         except self.user_model.DoesNotExist:
             return Response(
-                ApplicationMessages.LOGOUT_FAILED,
+                {
+                    "status": status.HTTP_400_BAD_REQUEST,
+                    "message": ApplicationMessages.LOGOUT_FAILED,
+                    "error": True,
+                    "data": {},
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -229,6 +245,7 @@ class UserViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    filterset_class = UserFilter
     filterset_fields = [
         "id",
         "email",
@@ -256,7 +273,9 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(queryset, many=True)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -264,8 +283,10 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -278,7 +299,9 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -286,8 +309,10 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -304,7 +329,9 @@ class UserViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -312,8 +339,10 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -332,7 +361,9 @@ class UserViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -340,8 +371,10 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
