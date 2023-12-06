@@ -154,11 +154,7 @@ CORS_ALLOW_METHODS = (
     "PUT",
 )
 
-# CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
-CSRF_TRUSTED_ORIGINS = [
-    "https://*.api.dev.sspot.foxlabs.in",
-    "https://*",
-]
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
 
 WSGI_APPLICATION = "squad_spot.wsgi.application"
 
