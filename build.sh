@@ -19,3 +19,4 @@ python manage.py loaddata fixtures/project.json
 python manage.py loaddata fixtures/projectimages.json
 python manage.py loaddata fixtures/clientsproject.json
 python manage.py loaddata fixtures/websiteimage.json
+python manage.py collectstatic --noinput
