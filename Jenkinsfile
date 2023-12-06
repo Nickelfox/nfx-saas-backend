@@ -46,7 +46,7 @@ pipeline {
                     steps {
                         sshagent(credentials : ['nfx-dev-server-do']) {
                             sh 'ssh -o StrictHostKeyChecking=no ubuntu@"$DO_SERVER" uptime'
-                            sh """ ssh ubuntu@'$DO_SERVER' "cd projects/sspot/backend/${BRANCH_NAME}/; git pull origin ${BRANCH_NAME} && chmod +x build.sh && ./build.sh" """
+                            sh """ ssh ubuntu@'$DO_SERVER' "cd projects/sspot/backend/${BRANCH_NAME}/; git reset --hard; git pull origin ${BRANCH_NAME} && chmod +x build.sh && ./build.sh" """
                         }
                     }
                 }
