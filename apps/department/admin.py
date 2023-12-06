@@ -1,8 +1,10 @@
 from django.contrib import admin
+from apps.department.resources import DepartmentResource
 from custom_admin import company_admin_site
 from apps.department.models import Department
 from apps.team.models import Team
 from common.helpers import module_perm
+from import_export.admin import ImportExportModelAdmin
 
 
 class TeamMemberInline(admin.TabularInline):
@@ -52,7 +54,8 @@ class TeamMemberInline(admin.TabularInline):
             return module_perm("team", user, "delete")
 
 
-class DeparmentSpecificAdmin(admin.ModelAdmin):
+class DeparmentSpecificAdmin(ImportExportModelAdmin):
+    resource_class = DepartmentResource
     inlines = [TeamMemberInline]
     list_display = ["name", "id"]
     list_filter = ("name",)
