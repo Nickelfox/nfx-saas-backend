@@ -14,6 +14,8 @@ from common.helpers import module_perm
 from common.constants import ApplicationMessages
 from datetime import datetime
 from rest_framework import views
+from apps.schedule.filters import ScheduleFilter
+from base.renderers import ApiRenderer
 
 
 # Create your views here.
@@ -26,6 +28,8 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    render_classes = [ApiRenderer]
+    filterset_class = ScheduleFilter
     filterset_fields = [
         "id",
         "project_member",
@@ -67,16 +71,14 @@ class ScheduleViewSet(viewsets.ModelViewSet):
                 start_date = datetime.strptime(start_date, "%Y-%m-%d")
                 end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
-                # queryset = queryset.filter(
-                #     start_at__range=(start_date, end_date)
-                # )
                 queryset = queryset.filter(
                     start_at__lte=end_date, end_at__gte=start_date
                 )
             serializer = self.serializer_class_list(queryset, many=True)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -84,8 +86,9 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -105,7 +108,8 @@ class ScheduleViewSet(viewsets.ModelViewSet):
 
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_201_CREATED,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -115,6 +119,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
                 {
                     "status": "error",
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -129,7 +134,8 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -137,8 +143,9 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -155,7 +162,8 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -163,8 +171,9 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -183,7 +192,8 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -191,8 +201,9 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -207,22 +218,26 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
-                    "message": ApplicationMessages.DELETED_SUCCESS,
+                    "status": status.HTTP_204_NO_CONTENT,
+                    "message": ApplicationMessages.SUCCESS,
+                    "data": {},
                 },
                 status=status.HTTP_204_NO_CONTENT,
             )
         else:
             return Response(
                 {
-                    "status": "error",
-                    "message": ApplicationMessages.PERMISSION_DENIED,
+                    "status": status.HTTP_403_FORBIDDEN,
+                    "message": ApplicationMessages.SUCCESS,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
 
 
 class TimelineProjectAPIView(views.APIView):
+    render_classes = [ApiRenderer]
+
     def get_queryset(self):
         # Filter projects by the user's company
         user = self.request.user
@@ -237,7 +252,8 @@ class TimelineProjectAPIView(views.APIView):
             result = calculate_working_days_project(start_date, queryset)
         return Response(
             {
-                "status": ApplicationMessages.SUCCESS,
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
                 "data": result,
             },
             status=status.HTTP_200_OK,
@@ -245,6 +261,8 @@ class TimelineProjectAPIView(views.APIView):
 
 
 class TimelineTeamAPIView(views.APIView):
+    render_classes = [ApiRenderer]
+
     def get_queryset(self):
         # Filter projects by the user's company
         user = self.request.user
@@ -262,7 +280,8 @@ class TimelineTeamAPIView(views.APIView):
             )
         return Response(
             {
-                "status": ApplicationMessages.SUCCESS,
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
                 "data": result,
             },
             status=status.HTTP_200_OK,
