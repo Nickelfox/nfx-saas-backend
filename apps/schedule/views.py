@@ -2,7 +2,10 @@ from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
 from apps.project.models import Project
 
-from apps.schedule.utils import calculate_working_days
+from apps.schedule.utils import (
+    calculate_working_days_project,
+    calculate_working_days_team,
+)
 from apps.team.models import Team
 from .models import Schedule
 from .serializers import ScheduleSerializer, SchedulelistSerializer
@@ -231,7 +234,32 @@ class TimelineProjectAPIView(views.APIView):
         queryset = self.get_queryset()
         start_date = request.query_params.get("start_date", None)
         if start_date:
-            result = calculate_working_days(start_date, queryset)
+            result = calculate_working_days_project(start_date, queryset)
+        return Response(
+            {
+                "status": ApplicationMessages.SUCCESS,
+                "data": result,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class TimelineTeamAPIView(views.APIView):
+    def get_queryset(self):
+        # Filter projects by the user's company
+        user = self.request.user
+        return Team.objects.filter(company_id=user.company_id)
+
+    def get(self, request):
+        req_user = request.user
+        result = {}
+        queryset = self.get_queryset()
+        start_date = request.query_params.get("start_date", None)
+        end_date = request.query_params.get("end_date", None)
+        if start_date:
+            result = calculate_working_days_team(
+                start_date, end_date, queryset
+            )
         return Response(
             {
                 "status": ApplicationMessages.SUCCESS,
