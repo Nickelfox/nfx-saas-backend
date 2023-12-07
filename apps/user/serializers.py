@@ -41,7 +41,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "refresh": str(refresh),
                 "access": str(access),
             }
-            data["user"]["role_permissions"] = user.role.role_permissions
+            if not ((user.is_company_owner) or (user.is_super_user)):
+                data["user"]["role_permissions"] = user.role.role_permissions
         else:
             data = {}
         # Remove top-level refresh and access tokens
