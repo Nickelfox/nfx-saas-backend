@@ -1,5 +1,7 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
+
+from apps.team.filters import TeamFilter
 from .models import Team
 from .serializers import TeamSerializer, TeamListSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -16,6 +18,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    filterset_class = TeamFilter
     filterset_fields = [
         "user",
         "department",
