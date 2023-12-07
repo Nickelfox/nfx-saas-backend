@@ -41,11 +41,21 @@ class TeamViewSet(viewsets.ModelViewSet):
         # Check if the user has permission to list projects
         req_user = request.user
         if req_user.is_company_owner or module_perm("team", req_user, "view"):
-            queryset = self.filter_queryset(self.get_queryset())
-            serializer = self.serializer_class_list(queryset, many=True)
+            queryset = self.filter_queryset(self.get_queryset()).order_by(
+                "user__full_name"
+            )
+            start_date = request.query_params.get("start_date", None)
+            end_date = request.query_params.get("end_date", None)
+            serializer = self.serializer_class_list(
+                queryset,
+                many=True,
+                context={"start_date": start_date, "end_date": end_date},
+            )
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -53,8 +63,10 @@ class TeamViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -79,7 +91,9 @@ class TeamViewSet(viewsets.ModelViewSet):
 
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_201_CREATED,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -87,8 +101,10 @@ class TeamViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -101,7 +117,9 @@ class TeamViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -109,8 +127,10 @@ class TeamViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -127,7 +147,9 @@ class TeamViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -135,8 +157,10 @@ class TeamViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -155,7 +179,9 @@ class TeamViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -163,8 +189,10 @@ class TeamViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
@@ -179,16 +207,20 @@ class TeamViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
-                    "message": ApplicationMessages.DELETED_SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
+                    "error": False,
+                    "data": {},
                 },
                 status=status.HTTP_204_NO_CONTENT,
             )
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
+                    "error": True,
+                    "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )

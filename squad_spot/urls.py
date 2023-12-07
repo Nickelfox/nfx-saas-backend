@@ -32,6 +32,7 @@ from apps.team.views import TeamViewSet
 from apps.schedule.views import (
     ScheduleViewSet,
     TimelineProjectAPIView,
+    TimelineTeamAPIView,
 )
 
 # Create a router for automatic URL routing
@@ -52,6 +53,11 @@ urlpatterns = [
         "api/timeline/project/",
         TimelineProjectAPIView.as_view(),
         name="timeline-project",
+    ),
+    path(
+        "api/timeline/team/",
+        TimelineTeamAPIView.as_view(),
+        name="timeline-team",
     ),
     path(
         "api/login/",
