@@ -134,11 +134,11 @@ class PasswordSetSuccessView(TemplateView):
         context = super().get_context_data(**kwargs)
         company_name = self.request.GET.get("company_name")
         if company_name is not None:
-            # login_url = f"http://{company_name}.{COMPANY_ADMIN_URL}"
-            login_url = f"{HOST_URL}/{COMPANY_ADMIN_ROUTE_NAME}/"
+            login_url = f"http://{company_name}.{COMPANY_ADMIN_URL}"
+            # login_url = f"{HOST_URL}/{COMPANY_ADMIN_ROUTE_NAME}/"
         else:
-            # login_url = f"{HOST_URL}/ss-admin/"
-            login_url = f"{HOST_URL}/{SQUAD_SPOT_ADMIN_ROUTE_NAME}/"
+            login_url = f"{HOST_URL}/ss-admin/"
+            # login_url = f"{HOST_URL}/{SQUAD_SPOT_ADMIN_ROUTE_NAME}/"
         context["login_url"] = login_url
         return context
 
