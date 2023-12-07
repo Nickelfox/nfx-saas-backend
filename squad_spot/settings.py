@@ -154,6 +154,8 @@ CORS_ALLOW_METHODS = (
     "PUT",
 )
 
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
+
 WSGI_APPLICATION = "squad_spot.wsgi.application"
 
 AUTH_USER_MODEL = "user.User"
