@@ -18,6 +18,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    filterset_class = TeamFilter
     filterset_fields = [
         "user",
         "department",
