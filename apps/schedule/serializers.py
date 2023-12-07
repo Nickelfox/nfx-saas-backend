@@ -19,6 +19,12 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 class SchedulelistSerializer(serializers.ModelSerializer):
     project_id = serializers.CharField(source="project_member.project_id")
+    department_id = serializers.UUIDField(
+        source="project_member.member.department_id"
+    )
+    department_name = serializers.CharField(
+        source="project_member.member.department.name"
+    )
 
     class Meta:
         model = Schedule
@@ -26,6 +32,8 @@ class SchedulelistSerializer(serializers.ModelSerializer):
             "id",
             "project_member",
             "project_id",
+            "department_id",
+            "department_name",
             "start_at",
             "end_at",
             "notes",

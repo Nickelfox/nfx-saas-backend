@@ -1,5 +1,7 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
+
+from apps.team.filters import TeamFilter
 from .models import Team
 from .serializers import TeamSerializer, TeamListSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -207,7 +209,7 @@ class TeamViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": status.HTTP_200_OK,
+                    "status": status.HTTP_204_NO_CONTENT,
                     "message": ApplicationMessages.SUCCESS,
                     "error": False,
                     "data": {},
