@@ -16,6 +16,8 @@ from common.helpers import module_perm
 from common.constants import ApplicationMessages
 from datetime import datetime
 from rest_framework import views
+from apps.schedule.filters import ScheduleFilter
+from base.renderers import ApiRenderer
 
 
 # Create your views here.
@@ -227,7 +229,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             return Response(
                 {
                     "status": status.HTTP_403_FORBIDDEN,
-                    "message": ApplicationMessages.PERMISSION_DENIED,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": {},
                 },
                 status=status.HTTP_403_FORBIDDEN,
