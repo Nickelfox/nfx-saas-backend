@@ -148,6 +148,7 @@ def calculate_working_days_team(start_date, end_date, qs_team):
                 total_hours = timedelta(hours=0)
                 pm = {
                     "id": p_m.id,
+                    "member": p_m.member_id,
                     "project": {
                         "id": p_m.project_id,
                         "project_name": p_m.project.project_name,
