@@ -5,6 +5,9 @@ from apps.client.models import Client
 from apps.project.models import Project
 from common.helpers import module_perm
 from import_export.admin import ImportExportModelAdmin
+from django.http import HttpResponse
+from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.datavalidation import DataValidation
 
 # Register your models here.
 
@@ -26,6 +29,10 @@ class ProjectInline(admin.TabularInline):
     extra = 0
     can_delete = False
     show_change_link = True
+
+    def get_queryset(self, request):
+        user = request.user
+        return super().get_queryset(request).filter(company_id=user.company_id)
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
@@ -65,6 +72,13 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
     list_display = ["name", "id"]
     fields = ["name"]
 
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            instance.company_id = request.user.company_id
+            instance.save()
+        formset.save_m2m()
+
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id
         super().save_model(request, obj, form, change)
@@ -77,6 +91,36 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
     def get_queryset(self, request):
         user = request.user
         return super().get_queryset(request).filter(company_id=user.company_id)
+
+    def download_template_action(self, request, queryset=None):
+        # If no items are selected, queryset will be None
+        # if not queryset:
+        #     queryset = self.get_queryset(request)
+
+        # Create a workbook in-memory
+        wb = Workbook()
+        ws = wb.active
+        headers = ["name"]
+        # column_D_range = "D2:D1048576"
+        ws.append(headers)
+
+        # Create an HttpResponse with Excel content type
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+        # Set the response headers for file attachment
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename=client_template.xlsx"
+
+        # Save the workbook directly to the response
+        wb.save(response)
+
+        return response
+
+    download_template_action.short_description = "Download Template"
+    actions = [download_template_action]
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
