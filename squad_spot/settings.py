@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework_simplejwt.token_blacklist",
     "django_filters",
+    "corsheaders",
 ]
 
 # settings.py
@@ -69,6 +70,7 @@ ALLOWED_HOSTS = ["*"]
 
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -107,6 +109,7 @@ SIMPLE_JWT = {
     "TOKEN_TYPE_CLAIM": "token_type",
 }
 
+
 ROOT_URLCONF = "squad_spot.urls"
 
 TEMPLATES = [
@@ -126,6 +129,30 @@ TEMPLATES = [
         },
     },
 ]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-disposition",
+    "content-type",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+)
 
 WSGI_APPLICATION = "squad_spot.wsgi.application"
 
