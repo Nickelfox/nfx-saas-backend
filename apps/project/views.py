@@ -4,7 +4,11 @@ from rest_framework.response import Response
 from apps.project.filters import ProjectFilter, ProjectMemberFilter
 from base.renderers import ApiRenderer
 from .models import Project, ProjectMember
-from .serializers import ProjectMemberSerializer, ProjectSerializer
+from .serializers import (
+    ProjectMemberListSerializer,
+    ProjectMemberSerializer,
+    ProjectSerializer,
+)
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
@@ -209,6 +213,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class ProjectMemberViewSet(viewsets.ModelViewSet):
     queryset = ProjectMember.objects.all()
     serializer_class = ProjectMemberSerializer
+    serializer_class_list = ProjectMemberListSerializer
     filter_backends = [
         filters.OrderingFilter,
         filters.SearchFilter,
@@ -246,7 +251,7 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
             "project_member", req_user, "view"
         ):
             queryset = self.filter_queryset(self.get_queryset())
-            serializer = self.get_serializer(queryset, many=True)
+            serializer = self.serializer_class_list(queryset, many=True)
             return Response(
                 {
                     "status": status.HTTP_200_OK,
