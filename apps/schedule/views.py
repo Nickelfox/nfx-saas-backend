@@ -218,11 +218,11 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": status.HTTP_204_NO_CONTENT,
-                    "message": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.DELETED_SUCCESS,
                     "data": {},
                 },
-                status=status.HTTP_204_NO_CONTENT,
+                status=status.HTTP_200_OK,
             )
         else:
             return Response(
