@@ -105,12 +105,14 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
-
+            serializer_list = self.serializer_class_list(
+                instance=serializer.instance
+            )
             return Response(
                 {
                     "status": status.HTTP_201_CREATED,
                     "message": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
+                    "data": serializer_list.data,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -131,7 +133,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         if req_user.is_company_owner or module_perm(
             "schedule", req_user, "view"
         ):
-            serializer = self.get_serializer(instance)
+            serializer = self.serializer_class_list(instance)
             return Response(
                 {
                     "status": status.HTTP_200_OK,
@@ -160,11 +162,14 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance, data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
+            serializer_list = self.serializer_class_list(
+                instance=serializer.instance
+            )
             return Response(
                 {
                     "status": status.HTTP_200_OK,
                     "message": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
+                    "data": serializer_list.data,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -190,11 +195,14 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
+            serializer_list = self.serializer_class_list(
+                instance=serializer.instance
+            )
             return Response(
                 {
                     "status": status.HTTP_200_OK,
                     "message": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
+                    "data": serializer_list.data,
                 },
                 status=status.HTTP_200_OK,
             )
