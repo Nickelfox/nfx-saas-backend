@@ -1,7 +1,14 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
+
+from apps.project.filters import ProjectFilter, ProjectMemberFilter
+from base.renderers import ApiRenderer
 from .models import Project, ProjectMember
-from .serializers import ProjectMemberSerializer, ProjectSerializer
+from .serializers import (
+    ProjectMemberListSerializer,
+    ProjectMemberSerializer,
+    ProjectSerializer,
+)
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
@@ -15,6 +22,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    render_classes = [ApiRenderer]
+    filterset_class = ProjectFilter
     filterset_fields = [
         "id",
         "project_name",
@@ -42,7 +51,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(queryset, many=True)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -78,7 +88,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_201_CREATED,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -102,7 +113,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -128,7 +140,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -156,7 +169,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -180,8 +194,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_204_NO_CONTENT,
                     "message": ApplicationMessages.DELETED_SUCCESS,
+                    "data": {},
                 },
                 status=status.HTTP_204_NO_CONTENT,
             )
@@ -198,11 +213,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class ProjectMemberViewSet(viewsets.ModelViewSet):
     queryset = ProjectMember.objects.all()
     serializer_class = ProjectMemberSerializer
+    serializer_class_list = ProjectMemberListSerializer
     filter_backends = [
         filters.OrderingFilter,
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    render_classes = [ApiRenderer]
+    filterset_class = ProjectMemberFilter
     filterset_fields = [
         "id",
         "project",
@@ -233,10 +251,11 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
             "project_member", req_user, "view"
         ):
             queryset = self.filter_queryset(self.get_queryset())
-            serializer = self.get_serializer(queryset, many=True)
+            serializer = self.serializer_class_list(queryset, many=True)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -265,7 +284,8 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
 
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -289,7 +309,8 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -315,7 +336,8 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -343,7 +365,8 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
             self.perform_update(serializer)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_200_OK,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -367,8 +390,9 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": ApplicationMessages.SUCCESS,
+                    "status": status.HTTP_204_NO_CONTENT,
                     "message": ApplicationMessages.DELETED_SUCCESS,
+                    "data": {},
                 },
                 status=status.HTTP_204_NO_CONTENT,
             )
