@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 
+
 # Register your models here.
 
 
@@ -101,15 +102,10 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
         return super().get_queryset(request).filter(company_id=user.company_id)
 
     def download_template_action(self, request, queryset=None):
-        # If no items are selected, queryset will be None
-        # if not queryset:
-        #     queryset = self.get_queryset(request)
-
         # Create a workbook in-memory
         wb = Workbook()
         ws = wb.active
         headers = ["name"]
-        # column_D_range = "D2:D1048576"
         ws.append(headers)
 
         # Create an HttpResponse with Excel content type
@@ -120,7 +116,7 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
         # Set the response headers for file attachment
         response[
             "Content-Disposition"
-        ] = "attachment; filename=client_template.xlsx"
+        ] = "attachment; filename=department_template.xlsx"
 
         # Save the workbook directly to the response
         wb.save(response)
