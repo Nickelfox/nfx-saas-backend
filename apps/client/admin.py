@@ -5,6 +5,10 @@ from apps.client.models import Client
 from apps.project.models import Project
 from common.helpers import module_perm
 from import_export.admin import ImportExportModelAdmin
+from django.http import HttpResponse
+from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.datavalidation import DataValidation
+
 
 # Register your models here.
 
@@ -96,6 +100,31 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
     def get_queryset(self, request):
         user = request.user
         return super().get_queryset(request).filter(company_id=user.company_id)
+
+    def download_template_action(self, request, queryset=None):
+        # Create a workbook in-memory
+        wb = Workbook()
+        ws = wb.active
+        headers = ["name"]
+        ws.append(headers)
+
+        # Create an HttpResponse with Excel content type
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+        # Set the response headers for file attachment
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename=department_template.xlsx"
+
+        # Save the workbook directly to the response
+        wb.save(response)
+
+        return response
+
+    download_template_action.short_description = "Download Template"
+    actions = [download_template_action]
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
