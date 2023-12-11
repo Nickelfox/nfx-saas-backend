@@ -32,8 +32,6 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     ]  # Add DjangoFilterBackend
     render_classes = [ApiRenderer]
     filterset_class = ScheduleFilter
-    render_classes = [ApiRenderer]
-    filterset_class = ScheduleFilter
     filterset_fields = [
         "id",
         "project_member",
@@ -221,11 +219,11 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": status.HTTP_204_NO_CONTENT,
+                    "status": status.HTTP_200_OK,
                     "message": ApplicationMessages.SUCCESS,
                     "data": {},
                 },
-                status=status.HTTP_204_NO_CONTENT,
+                status=status.HTTP_200_OK,
             )
         else:
             return Response(
