@@ -1,12 +1,14 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
 from apps.project.models import Project
+from apps.schedule.filters import ScheduleFilter
 
 from apps.schedule.utils import (
     calculate_working_days_project,
     calculate_working_days_team,
 )
 from apps.team.models import Team
+from base.renderers import ApiRenderer
 from .models import Schedule
 from .serializers import ScheduleSerializer, SchedulelistSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -28,6 +30,8 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    render_classes = [ApiRenderer]
+    filterset_class = ScheduleFilter
     render_classes = [ApiRenderer]
     filterset_class = ScheduleFilter
     filterset_fields = [
@@ -70,7 +74,6 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             if start_date and end_date:
                 start_date = datetime.strptime(start_date, "%Y-%m-%d")
                 end_date = datetime.strptime(end_date, "%Y-%m-%d")
-
                 queryset = queryset.filter(
                     start_at__lte=end_date, end_at__gte=start_date
                 )
@@ -117,7 +120,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         else:
             return Response(
                 {
-                    "status": "error",
+                    "status": status.HTTP_403_FORBIDDEN,
                     "message": ApplicationMessages.PERMISSION_DENIED,
                     "data": {},
                 },
