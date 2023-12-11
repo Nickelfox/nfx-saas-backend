@@ -228,7 +228,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             return Response(
                 {
                     "status": status.HTTP_200_OK,
-                    "message": ApplicationMessages.DELETED_SUCCESS,
+                    "message": ApplicationMessages.SUCCESS,
                     "data": {},
                 },
                 status=status.HTTP_200_OK,
