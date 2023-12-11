@@ -7,6 +7,7 @@ from .serializers import DepartmentSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
+from base.renderers import ApiRenderer
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -17,6 +18,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    render_classes = [ApiRenderer]
     filterset_class = DepartmentFilter
     filterset_fields = [
         "id",
@@ -47,7 +49,6 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 {
                     "status": status.HTTP_200_OK,
                     "message": ApplicationMessages.SUCCESS,
-                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -82,7 +83,6 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 {
                     "status": status.HTTP_201_CREATED,
                     "message": ApplicationMessages.SUCCESS,
-                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -110,7 +110,6 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 {
                     "status": status.HTTP_200_OK,
                     "message": ApplicationMessages.SUCCESS,
-                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -140,7 +139,6 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 {
                     "status": status.HTTP_200_OK,
                     "message": ApplicationMessages.SUCCESS,
-                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -172,7 +170,6 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 {
                     "status": status.HTTP_200_OK,
                     "message": ApplicationMessages.SUCCESS,
-                    "error": False,
                     "data": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -198,12 +195,11 @@ class DepartmentViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response(
                 {
-                    "status": status.HTTP_204_NO_CONTENT,
+                    "status": status.HTTP_200_OK,
                     "message": ApplicationMessages.DELETED_SUCCESS,
-                    "error": False,
                     "data": {},
                 },
-                status=status.HTTP_204_NO_CONTENT,
+                status=status.HTTP_200_OK,
             )
         else:
             return Response(

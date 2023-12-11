@@ -19,6 +19,22 @@ class MemberInline(admin.TabularInline):
     can_delete = False
     show_change_link = True
 
+    def get_queryset(self, request):
+        user = request.user
+        return (
+            super()
+            .get_queryset(request)
+            .filter(member__company_id=user.company_id)
+        )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "member":
+            user = request.user
+            kwargs["queryset"] = Team.objects.filter(
+                company_id=user.company_id
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
         user = request.user
