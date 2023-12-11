@@ -6,6 +6,10 @@ from apps.client.models import Client
 from custom_admin import company_admin_site
 from common.helpers import module_perm
 from import_export.admin import ImportExportModelAdmin
+from django.http import HttpResponse
+from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.datavalidation import DataValidation
+from common.constants import Project_type
 
 # Register your models here.
 
@@ -86,6 +90,13 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         "notes",
     ]
 
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            instance.company_id = request.user.company_id
+            instance.save()
+        formset.save_m2m()
+
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id
         super().save_model(request, obj, form, change)
@@ -106,6 +117,75 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
     def get_queryset(self, request):
         user = request.user
         return super().get_queryset(request).filter(company_id=user.company_id)
+
+    def download_template_action(self, request, queryset=None):
+        # If no items are selected, queryset will be None
+        client_name = Client.objects.filter(
+            company_id=request.user.company_id
+        ).values_list("name", flat=True)
+        # Create a workbook in-memory
+        wb = Workbook()
+        ws = wb.active
+        headers = [
+            "client",
+            "project_name",
+            "project_code",
+            "color_code",
+            "start_date",
+            "end_date",
+            "notes",
+            "project_type",
+        ]
+        column_A_range = "A2:A1048576"
+        column_H_range = "H2:H1048576"
+        ws.append(headers)
+
+        choice_1_str = ",".join(client_name)
+        choice_2_str = ",".join(Project_type.values)
+        valid_1_options = f'"{choice_1_str}"'
+        valid_2_options = f'"{choice_2_str}"'
+
+        rule = DataValidation(
+            type="list", formula1=valid_1_options, allow_blank=True
+        )
+
+        rule.error = "Entry not Valid"
+        rule.errorTitle = "Invalid Entry"
+
+        rule.prompt = "please select from list"
+        rule.promptTitle = "Select Option"
+        ws.add_data_validation(rule)
+        rule.add(column_A_range)
+
+        rule = DataValidation(
+            type="list", formula1=valid_2_options, allow_blank=True
+        )
+
+        rule.error = "Entry not Valid"
+        rule.errorTitle = "Invalid Entry"
+
+        rule.prompt = "please select from list"
+        rule.promptTitle = "Select Option"
+        ws.add_data_validation(rule)
+        rule.add(column_H_range)
+
+        # Create an HttpResponse with Excel content type
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+        # Set the response headers for file attachment
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename=project_template.xlsx"
+
+        # Save the workbook directly to the response
+        wb.save(response)
+
+        return response
+
+    download_template_action.short_description = "Download Template"
+    actions = [download_template_action]
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
