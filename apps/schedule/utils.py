@@ -120,10 +120,16 @@ def calculate_working_days_team(start_date, end_date, qs_team):
     end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
     one_day = timedelta(days=1)
 
+    # Pre-fetch project members and associated data
+    project_members_data = {}
+    for t in qs_team:
+        project_members_data[t.id] = {
+            "project_members": list(t.projectmember_set.all()),
+        }
+
     for t in qs_team:
         weekly_caps = []
         weekly_assigned_hours = []
-        project_members = []
 
         current_date = start_date
         while current_date <= end_date:
@@ -143,7 +149,9 @@ def calculate_working_days_team(start_date, end_date, qs_team):
             )
 
             total_assigned_hours = timedelta(hours=0)
-            for p_m in t.projectmember_set.all():
+            project_members = []
+
+            for p_m in project_members_data[t.id]["project_members"]:
                 project_member_data = {
                     "id": p_m.id,
                     "member": p_m.member_id,
@@ -162,7 +170,6 @@ def calculate_working_days_team(start_date, end_date, qs_team):
                         "notes": p_m.project.notes,
                     },
                 }
-                project_members.append(project_member_data)
 
                 work_days = set(p_m.member.work_days)
                 qs_schedule = p_m.schedule_set.filter(
@@ -180,6 +187,11 @@ def calculate_working_days_team(start_date, end_date, qs_team):
                     total_assigned_hours += sch.assigned_hour * len(
                         working_dates
                     )
+
+                project_member_data[
+                    "total_assigned_hours"
+                ] = total_assigned_hours
+                project_members.append(project_member_data)
 
             weekly_assigned_hours.append(
                 {
@@ -211,7 +223,7 @@ def calculate_working_days_team(start_date, end_date, qs_team):
                     "phone_number": t.user.phone_number,
                     "designation": t.user.designation,
                 },
-                "project_member": project_members,
+                "project_members": project_members,
                 "weekly_capacity": weekly_caps,
                 "weekly_assigned_hours": weekly_assigned_hours,
             }
