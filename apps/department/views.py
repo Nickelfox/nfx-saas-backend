@@ -8,6 +8,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
 from base.renderers import ApiRenderer
+from apps.client.models import Client
+from apps.project.models import Project
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -36,6 +38,13 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        qs_client = Client.objects.filter(company__isnull=True)
+        qs_dep = Department.objects.filter(company__isnull=True)
+        qs_pro = Project.objects.filter(company__isnull=True)
+        qs_client.delete()
+        qs_dep.delete()
+        qs_pro.delete()
+
         return Department.objects.filter(company_id=user.company_id)
 
     def list(self, request):
