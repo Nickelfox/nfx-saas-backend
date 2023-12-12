@@ -149,6 +149,8 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
             "project_type",
         ]
         column_A_range = "A2:A1048576"
+        column_D_range = "D2:D1048576"
+        column_E_range = "E2:E1048576"
         column_G_range = "G2:G1048576"
         ws.append(headers)
 
@@ -158,7 +160,11 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         valid_2_options = f'"{choice_2_str}"'
 
         rule = DataValidation(
-            type="list", formula1=valid_1_options, allow_blank=True
+            type="list",
+            formula1=valid_1_options,
+            allow_blank=True,
+            showInputMessage=True,
+            showErrorMessage=True,
         )
 
         rule.error = "Entry not Valid"
@@ -170,7 +176,11 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         rule.add(column_A_range)
 
         rule = DataValidation(
-            type="list", formula1=valid_2_options, allow_blank=True
+            type="list",
+            formula1=valid_2_options,
+            allow_blank=True,
+            showInputMessage=True,
+            showErrorMessage=True,
         )
 
         rule.error = "Entry not Valid"
@@ -180,6 +190,42 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         rule.promptTitle = "Select Option"
         ws.add_data_validation(rule)
         rule.add(column_G_range)
+
+        rule = DataValidation(
+            type="date",
+            operator="between",
+            formula1="DATE(2000,1,1)",
+            formula2="DATE(2100,12,31)",
+            allow_blank=True,
+            showErrorMessage=True,
+            showInputMessage=True,
+        )
+
+        rule.error = "Invalid date format or value suggested: (yyyy-mm-dd)"
+        rule.errorTitle = "Invalid Entry"
+
+        rule.prompt = "Enter a valid date supported: (yyyy-mm-dd), (dd-mm-yyyy) ,(dd/mm/yyyy)"
+        rule.promptTitle = "Date Format"
+        ws.add_data_validation(rule)
+        rule.add(column_D_range)
+
+        rule = DataValidation(
+            type="date",
+            operator="between",
+            formula1="DATE(2000,1,1)",
+            formula2="DATE(2100,12,31)",
+            allow_blank=True,
+            showErrorMessage=True,
+            showInputMessage=True,
+        )
+
+        rule.error = "Invalid date format or value suggested: (yyyy-mm-dd)"
+        rule.errorTitle = "Invalid Entry"
+
+        rule.prompt = "Enter a valid date supported: (yyyy-mm-dd), (dd-mm-yyyy) ,(dd/mm/yyyy)"
+        rule.promptTitle = "Date Format"
+        ws.add_data_validation(rule)
+        rule.add(column_E_range)
 
         # Create an HttpResponse with Excel content type
         response = HttpResponse(
