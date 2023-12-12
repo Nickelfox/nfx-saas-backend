@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import path
 from apps.project.models import Project, ProjectMember
 from apps.project.resources import ProjectResource
 from apps.team.models import Team
@@ -72,6 +73,7 @@ class MemberInline(admin.TabularInline):
 
 
 class ProjectSpecificAdmin(ImportExportModelAdmin):
+    change_list_template = "company_admin/project_change_list.html"
     resource_class = ProjectResource
     inlines = [MemberInline]
     list_display = ["project_name", "client", "start_date", "end_date", "id"]
@@ -118,7 +120,18 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         user = request.user
         return super().get_queryset(request).filter(company_id=user.company_id)
 
-    def download_template_action(self, request, queryset=None):
+    def get_urls(self):
+        urls = super(ProjectSpecificAdmin, self).get_urls()
+        my_urls = [
+            path(
+                "download_template/project/",
+                self.download_template,
+                name="project_custom_view",
+            ),
+        ]
+        return my_urls + urls
+
+    def download_template(self, request):
         # If no items are selected, queryset will be None
         client_name = Client.objects.filter(
             company_id=request.user.company_id
@@ -130,14 +143,13 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
             "client",
             "project_name",
             "project_code",
-            "color_code",
             "start_date",
             "end_date",
             "notes",
             "project_type",
         ]
         column_A_range = "A2:A1048576"
-        column_H_range = "H2:H1048576"
+        column_G_range = "G2:G1048576"
         ws.append(headers)
 
         choice_1_str = ",".join(client_name)
@@ -167,7 +179,7 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         rule.prompt = "please select from list"
         rule.promptTitle = "Select Option"
         ws.add_data_validation(rule)
-        rule.add(column_H_range)
+        rule.add(column_G_range)
 
         # Create an HttpResponse with Excel content type
         response = HttpResponse(
@@ -183,9 +195,6 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         wb.save(response)
 
         return response
-
-    download_template_action.short_description = "Download Template"
-    actions = [download_template_action]
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
