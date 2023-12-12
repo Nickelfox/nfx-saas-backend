@@ -107,7 +107,9 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
         urls = super(ClientSpecificAdmin, self).get_urls()
         my_urls = [
             path(
-                "my_view/", self.download_template, name="client_custom_view"
+                "download_template/client/",
+                self.download_template,
+                name="client_custom_view",
             ),
         ]
         return my_urls + urls
