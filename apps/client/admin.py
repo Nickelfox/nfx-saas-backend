@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import path
 from apps.client.resources import ClientResource
 from custom_admin import company_admin_site
 from apps.client.models import Client
@@ -76,6 +77,7 @@ class ProjectInline(admin.TabularInline):
 
 
 class ClientSpecificAdmin(ImportExportModelAdmin):
+    change_list_template = "company_admin/client_change_list.html"
     resource_class = ClientResource
     inlines = [ProjectInline]
     list_display = ["name", "id"]
@@ -101,7 +103,16 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
         user = request.user
         return super().get_queryset(request).filter(company_id=user.company_id)
 
-    def download_template_action(self, request, queryset=None):
+    def get_urls(self):
+        urls = super(ClientSpecificAdmin, self).get_urls()
+        my_urls = [
+            path(
+                "my_view/", self.download_template, name="client_custom_view"
+            ),
+        ]
+        return my_urls + urls
+
+    def download_template(self, request):
         # Create a workbook in-memory
         wb = Workbook()
         ws = wb.active
@@ -116,15 +127,12 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
         # Set the response headers for file attachment
         response[
             "Content-Disposition"
-        ] = "attachment; filename=department_template.xlsx"
+        ] = "attachment; filename=client_template.xlsx"
 
         # Save the workbook directly to the response
         wb.save(response)
 
         return response
-
-    download_template_action.short_description = "Download Template"
-    actions = [download_template_action]
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
