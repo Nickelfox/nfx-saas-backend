@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import path
 from apps.department.resources import DepartmentResource
 from apps.user.models import User
 from custom_admin import company_admin_site
@@ -72,6 +73,7 @@ class TeamMemberInline(admin.TabularInline):
 
 
 class DeparmentSpecificAdmin(ImportExportModelAdmin):
+    change_list_template = "company_admin/department_change_list.html"
     resource_class = DepartmentResource
     inlines = [TeamMemberInline]
     list_display = ["name", "id"]
@@ -98,7 +100,18 @@ class DeparmentSpecificAdmin(ImportExportModelAdmin):
         user = request.user
         return super().get_queryset(request).filter(company_id=user.company_id)
 
-    def download_template_action(self, request, queryset=None):
+    def get_urls(self):
+        urls = super(DeparmentSpecificAdmin, self).get_urls()
+        my_urls = [
+            path(
+                "download_template/department/",
+                self.download_template,
+                name="department_custom_view",
+            ),
+        ]
+        return my_urls + urls
+
+    def download_template(self, request):
         # Create a workbook in-memory
         wb = Workbook()
         ws = wb.active
@@ -119,9 +132,6 @@ class DeparmentSpecificAdmin(ImportExportModelAdmin):
         wb.save(response)
 
         return response
-
-    download_template_action.short_description = "Download Template"
-    actions = [download_template_action]
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
