@@ -39,6 +39,19 @@ class Project_type(TextChoices):
     NON_BILLABLE = ("NON_BILLABLE", "Non Billable")
 
 
+class Color_choice(TextChoices):
+    """
+    List of Project Color Code choices
+    """
+
+    Warm_Red = ("#F10982", "Warm Red")
+    Red = ("#FF0000", "Red")
+    Orange = ("#FF7034", "Orange")
+    Maroon = ("#800000", "Maroon")
+    Royal_Blue = ("#4169e1", "Royal Blue")
+    Light_Green = ("#57f287", "Light Green")
+
+
 class Schedule_type(TextChoices):
     WORK = ("WORK", "Work")
     TIME_OFF = ("TIME_OFF", "Time Off")
