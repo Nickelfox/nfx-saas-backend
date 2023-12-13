@@ -1,6 +1,6 @@
 from django.db import models
 from apps.team.models import Team
-from common.constants import Project_type
+from common.constants import Color_choice, Project_type
 from common.models import BaseModel
 from apps.client.models import Client
 from apps.company.models import Company
@@ -17,7 +17,13 @@ class Project(BaseModel):
     )
     project_name = models.CharField(max_length=255)
     project_code = models.CharField(max_length=255, null=True, blank=True)
-    color_code = models.CharField(max_length=255, null=True, blank=True)
+    color_code = models.CharField(
+        max_length=40,
+        choices=Color_choice.choices,
+        default=None,  # choice list Department_choice
+        blank=True,
+        null=True,
+    )
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)

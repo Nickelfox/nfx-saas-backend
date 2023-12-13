@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.shortcuts import render
 from django.urls import path
 from apps.project.models import Project, ProjectMember
 from apps.project.resources import ProjectResource
@@ -10,7 +11,8 @@ from import_export.admin import ImportExportModelAdmin
 from django.http import HttpResponse
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
-from common.constants import Project_type
+from common.constants import Color_choice, Project_type
+from openpyxl.styles import PatternFill
 
 # Register your models here.
 
@@ -124,12 +126,23 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         urls = super(ProjectSpecificAdmin, self).get_urls()
         my_urls = [
             path(
+                "instruct-project/",
+                self.admin_site.admin_view(self.instruct_view),
+                name="project_template_instruct_view",
+            ),
+            path(
                 "download_template/project/",
-                self.download_template,
-                name="project_custom_view",
+                self.admin_site.admin_view(self.download_template),
+                name="project_download_template",
             ),
         ]
         return my_urls + urls
+
+    def instruct_view(self, request):
+        return render(
+            request,
+            "import_instruction/project_template.html",
+        )
 
     def download_template(self, request):
         # If no items are selected, queryset will be None
@@ -145,19 +158,32 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
             "project_code",
             "start_date",
             "end_date",
-            "notes",
+            "color_code",
             "project_type",
+            "notes",
         ]
+
         column_A_range = "A2:A1048576"
         column_D_range = "D2:D1048576"
         column_E_range = "E2:E1048576"
+        column_F_range = "F2:F1048576"
         column_G_range = "G2:G1048576"
         ws.append(headers)
-
+        ws.column_dimensions["A"].width = 20
+        ws.column_dimensions["B"].width = 30
+        ws.column_dimensions["C"].width = 15
+        ws.column_dimensions["D"].width = 20
+        ws.column_dimensions["E"].width = 20
+        ws.column_dimensions["F"].width = 15
+        ws.column_dimensions["G"].width = 20
+        ws.column_dimensions["H"].width = 20
+        color_values_list = [choice[1] for choice in Color_choice.choices]
         choice_1_str = ",".join(client_name)
         choice_2_str = ",".join(Project_type.values)
+        choice_3_str = ",".join(color_values_list)
         valid_1_options = f'"{choice_1_str}"'
         valid_2_options = f'"{choice_2_str}"'
+        valid_3_options = f'"{choice_3_str}"'
 
         rule = DataValidation(
             type="list",
@@ -192,6 +218,22 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         rule.add(column_G_range)
 
         rule = DataValidation(
+            type="list",
+            formula1=valid_3_options,
+            allow_blank=True,
+            showInputMessage=True,
+            showErrorMessage=True,
+        )
+
+        rule.error = "Entry not Valid"
+        rule.errorTitle = "Invalid Entry"
+
+        rule.prompt = "please select from list"
+        rule.promptTitle = "Select Option"
+        ws.add_data_validation(rule)
+        rule.add(column_F_range)
+
+        rule = DataValidation(
             type="date",
             operator="between",
             formula1="DATE(2000,1,1)",
@@ -201,10 +243,12 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
             showInputMessage=True,
         )
 
-        rule.error = "Invalid date format or value suggested: (yyyy-mm-dd)"
+        rule.error = (
+            "Invalid date format or value suggested: (yyyy-mm-dd),(dd/mm/yyyy)"
+        )
         rule.errorTitle = "Invalid Entry"
 
-        rule.prompt = "Enter a valid date supported: (yyyy-mm-dd), (dd-mm-yyyy) ,(dd/mm/yyyy)"
+        rule.prompt = "Enter a valid date supported: (yyyy-mm-dd),(dd/mm/yyyy)"
         rule.promptTitle = "Date Format"
         ws.add_data_validation(rule)
         rule.add(column_D_range)
@@ -219,10 +263,12 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
             showInputMessage=True,
         )
 
-        rule.error = "Invalid date format or value suggested: (yyyy-mm-dd)"
+        rule.error = (
+            "Invalid date format or value suggested: (yyyy-mm-dd),(dd/mm/yyyy)"
+        )
         rule.errorTitle = "Invalid Entry"
 
-        rule.prompt = "Enter a valid date supported: (yyyy-mm-dd), (dd-mm-yyyy) ,(dd/mm/yyyy)"
+        rule.prompt = "Enter a valid date supported: (yyyy-mm-dd),(dd/mm/yyyy)"
         rule.promptTitle = "Date Format"
         ws.add_data_validation(rule)
         rule.add(column_E_range)
