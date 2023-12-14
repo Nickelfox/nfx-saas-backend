@@ -53,7 +53,7 @@ urlpatterns = [
     ),
     path(
         "api/login/",
-        user_views.UserLoginAPIView.as_view(),
+        user_views.CustomTokenObtainPairView.as_view(),
         name="api-login",
     ),
     path("api/logout/", user_views.LogoutAPIView.as_view(), name="api-logout"),

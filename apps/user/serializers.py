@@ -1,23 +1,8 @@
 from rest_framework import serializers, status
 from apps.user import models as user_models
-
-
-class LoginSerializer(serializers.Serializer):
-    """
-    Login serializer
-    """
-
-    email = serializers.EmailField(max_length=255, required=True)
-    password = serializers.CharField(max_length=255, required=True)
-
-    class Meta:
-        model = user_models.User
-        exclude = ("password",)
-
-    def validate_email(self, email):
-        """will check email"""
-        email = email.lower()
-        return email
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import ValidationError
+from common.constants import ApplicationMessages
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -31,3 +16,16 @@ class UserListSerializer(serializers.ModelSerializer):
             "phone_number",
             "designation",
         )
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user or self.context["request"].user
+        user_serializer = UserListSerializer(user)
+        response = {
+            "user": user_serializer.data,
+        }
+        response["user"]["token"] = data
+        response["user"]["role_permissions"] = user.role.role_permissions
+        return response
