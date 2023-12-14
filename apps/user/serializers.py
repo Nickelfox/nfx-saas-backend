@@ -19,33 +19,13 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        # You can add custom claims to the token if needed
-        return token
-
     def validate(self, attrs):
         data = super().validate(attrs)
         user = self.user or self.context["request"].user
-
-        if user.is_authenticated:
-            refresh = self.get_token(user)
-            access = refresh.access_token
-
-            user_serializer = UserListSerializer(user)
-            data = {
-                "user": user_serializer.data,
-            }
-            data["user"]["token"] = {
-                "refresh": str(refresh),
-                "access": str(access),
-            }
-            if not ((user.is_company_owner) or (user.is_super_user)):
-                data["user"]["role_permissions"] = user.role.role_permissions
-        else:
-            data = {}
-        # Remove top-level refresh and access tokens
-        data.pop("refresh", None)
-        data.pop("access", None)
-        return data
+        user_serializer = UserListSerializer(user)
+        response = {
+            "user": user_serializer.data,
+        }
+        response["user"]["token"] = data
+        response["user"]["role_permissions"] = user.role.role_permissions
+        return response
