@@ -25,6 +25,7 @@ from common.constants import (
 )
 from rest_framework.routers import DefaultRouter
 from apps.project.views import ProjectViewSet, ProjectMemberViewSet
+from apps.user import views as user_views
 
 # Create a router for automatic URL routing
 router = DefaultRouter()
@@ -35,5 +36,11 @@ urlpatterns = [
     path(f"{COMPANY_ADMIN_ROUTE_NAME}/", company_admin_site.urls),
     path("user/", include("apps.user.urls")),
     path(f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}/", ss_admin_site.urls),
+    path(
+        "api/login/",
+        user_views.CustomTokenObtainPairView.as_view(),
+        name="api-login",
+    ),
+    path("api/logout/", user_views.LogoutAPIView.as_view(), name="api-logout"),
     path("api/", include(router.urls)),
 ]
