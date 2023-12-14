@@ -14,10 +14,4 @@ urlpatterns = [
         views.PasswordSetSuccessView.as_view(),
         name="password_set_success",
     ),
-    path(
-        "login/",
-        views.UserLoginAPIView.as_view(),
-        name="post-admin-login",
-    ),
-    path("logout/", views.LogoutAPIView.as_view(), name="admin-logout"),
 ]
