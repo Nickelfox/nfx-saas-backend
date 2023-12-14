@@ -59,6 +59,7 @@ class ApplicationMessages:
     EMAIL_PASSWORD_INCORRECT = "Invalid Email Or Password"
     INVALID_PASSWORD = "Invalid Email Or Password"
     INVALID_EMAIL = "You are not logged in with the same email id".title()
+    LOGIN_SUCCESSFULLY = "login successful".title()
     LOGOUT_SUCCESSFULLY = "Logout is successful".title()
     LOGIN_SUCCESSFULLY = "login successful".title()
     LOGOUT_FAILED_NO_TOKEN = "Logout Failed. No Active Login found".title()
