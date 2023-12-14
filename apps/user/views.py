@@ -19,6 +19,8 @@ from apps.user import models as user_models
 from common.constants import ApplicationMessages
 from django.contrib.auth import authenticate
 from common import auth as user_auth
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from common.constants import (
     COMPANY_ADMIN_ROUTE_NAME,
     SQUAD_SPOT_ADMIN_ROUTE_NAME,
@@ -142,57 +144,37 @@ class PasswordSetSuccessView(TemplateView):
         return context
 
 
-class UserLoginAPIView(views.APIView):
-    """
-    Login API for Admin
-    """
-
-    serializer_class = serializers.LoginSerializer
-
-    def get_queryset(self, email):
-        """Returns the User instance if exist"""
-        try:
-            # role = user_models.Role.objects.filter(
-            #     name__in=[Constants.ADMIN, Constants.SUBADMIN]
-            # )
-            user_instance = user_models.User.objects.filter(
-                email=email, is_active=True
-            )
-            if len(user_instance) > 1:
-                raise ValidationError(
-                    ApplicationMessages.EMAIL_PASSWORD_INCORRECT
-                )
-            return user_instance.first()
-        except Exception:
-            raise ValidationError(ApplicationMessages.EMAIL_PASSWORD_INCORRECT)
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = serializers.CustomTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
-        """Login as well as create a session"""
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-        request.data["email"] = request.data.get("email").lower()
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            user_instance = self.get_queryset(
-                serializer.validated_data.get("email")
-            )
-            if not user_instance:
-                return Response(
-                    ApplicationMessages.USER_NOT_ACTIVE,
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-            data = user_auth.AuthManager.login_user_email(
-                user_instance,
-                password=serializer.data.get("password"),
-                data=serializer.validated_data,
-            )
-            if data:
-                return Response(data, status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    ApplicationMessages.EMAIL_PASSWORD_INCORRECT,
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Call the save method to get the response
+            response = serializer.validated_data
+
+            user_data = response
+
+            # Customize the success response format
+            data = {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.LOGIN_SUCCESSFULLY,
+                "error": False,
+                "data": user_data,
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Handle the exception for invalid credentials
+            error_data = {
+                "status": status.HTTP_401_UNAUTHORIZED,
+                "message": ApplicationMessages.INVALID_PASSWORD,
+                "error": True,
+                "data": {},
+            }
+            return Response(error_data, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class LogoutAPIView(views.APIView):
@@ -213,14 +195,36 @@ class LogoutAPIView(views.APIView):
         """
         try:
             user = self.user_model.objects.get(id=request.user.id)
-
-            user_auth.logout_all_session(user)
-            return Response(
-                ApplicationMessages.LOGOUT_SUCCESSFULLY,
-                status=status.HTTP_200_OK,
-            )
+            qs = OutstandingToken.objects.filter(user=user)
+            if qs.exists():
+                qs.delete()
+                return Response(
+                    {
+                        "status": status.HTTP_200_OK,
+                        "message": ApplicationMessages.LOGOUT_SUCCESSFULLY,
+                        "error": False,
+                        "data": {},
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                # Handle the case where qs is empty
+                return Response(
+                    {
+                        "status": status.HTTP_400_BAD_REQUEST,
+                        "message": ApplicationMessages.LOGOUT_FAILED_NO_TOKEN,
+                        "error": True,
+                        "data": {},
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except self.user_model.DoesNotExist:
             return Response(
-                ApplicationMessages.LOGOUT_FAILED,
+                {
+                    "status": status.HTTP_400_BAD_REQUEST,
+                    "message": ApplicationMessages.LOGOUT_FAILED,
+                    "error": True,
+                    "data": {},
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
