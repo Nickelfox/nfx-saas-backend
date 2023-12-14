@@ -3,6 +3,8 @@ from django.urls import reverse
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from apps.invitation.models import Invitation
+from base.permissions import ModulePermission
+from base.renderers import ApiRenderer
 from common.constants import Invite_type, ApplicationMessages
 from common.helpers import module_perm
 from .models import User
@@ -232,6 +234,8 @@ class LogoutAPIView(views.APIView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    renderer_classes = [ApiRenderer]
+    permission_classes = [ModulePermission]
     queryset = User.objects.all()
     serializer_class = serializers.UserListSerializer
     filter_backends = [
@@ -260,98 +264,60 @@ class UserViewSet(viewsets.ModelViewSet):
         return User.objects.filter(company_id=user.company_id)
 
     def list(self, request):
-        req_user = request.user
-        if req_user.is_company_owner or module_perm("user", req_user, "view"):
-            queryset = self.filter_queryset(self.get_queryset())
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(
-                {
-                    "status": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {
-                    "status": "error",
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "error": False,
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def retrieve(self, request, pk=None):
         instance = self.get_object()
-
-        req_user = request.user
-        if req_user.is_company_owner or module_perm("user", req_user, "view"):
-            serializer = self.get_serializer(instance)
-            return Response(
-                {
-                    "status": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {
-                    "status": "error",
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        serializer = self.get_serializer(instance)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "error": False,
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def update(self, request, pk=None):
         instance = self.get_object()
-
-        req_user = request.user
-        if req_user.is_company_owner or module_perm(
-            "user", req_user, "update"
-        ):
-            serializer = self.get_serializer(instance, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-            return Response(
-                {
-                    "status": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {
-                    "status": "error",
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "error": False,
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def partial_update(self, request, pk=None):
         instance = self.get_object()
 
-        req_user = request.user
-        if req_user.is_company_owner or module_perm(
-            "user", req_user, "update"
-        ):
-            serializer = self.get_serializer(
-                instance, data=request.data, partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-            return Response(
-                {
-                    "status": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {
-                    "status": "error",
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "error": False,
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
