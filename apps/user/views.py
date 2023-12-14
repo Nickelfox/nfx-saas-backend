@@ -20,6 +20,8 @@ from apps.user import models as user_models
 from common.constants import ApplicationMessages
 from django.contrib.auth import authenticate
 from common import auth as user_auth
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from common.constants import (
     COMPANY_ADMIN_ROUTE_NAME,
     SQUAD_SPOT_ADMIN_ROUTE_NAME,
@@ -169,17 +171,13 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             # Handle the exception for invalid credentials
-            return self.handle_invalid_credentials()
-
-    def handle_invalid_credentials(self):
-        # Customize the error response for invalid credentials
-        error_data = {
-            "status": status.HTTP_401_UNAUTHORIZED,
-            "message": ApplicationMessages.INVALID_PASSWORD,
-            "error": True,
-            "data": {},
-        }
-        return Response(error_data, status=status.HTTP_401_UNAUTHORIZED)
+            error_data = {
+                "status": status.HTTP_401_UNAUTHORIZED,
+                "message": ApplicationMessages.INVALID_PASSWORD,
+                "error": True,
+                "data": {},
+            }
+            return Response(error_data, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class LogoutAPIView(views.APIView):
@@ -218,7 +216,7 @@ class LogoutAPIView(views.APIView):
                     {
                         "status": status.HTTP_400_BAD_REQUEST,
                         "message": ApplicationMessages.LOGOUT_FAILED_NO_TOKEN,
-                        "error": False,
+                        "error": True,
                         "data": {},
                     },
                     status=status.HTTP_400_BAD_REQUEST,
@@ -228,7 +226,7 @@ class LogoutAPIView(views.APIView):
                 {
                     "status": status.HTTP_400_BAD_REQUEST,
                     "message": ApplicationMessages.LOGOUT_FAILED,
-                    "error": False,
+                    "error": True,
                     "data": {},
                 },
                 status=status.HTTP_400_BAD_REQUEST,
