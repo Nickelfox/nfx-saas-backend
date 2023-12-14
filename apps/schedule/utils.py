@@ -181,9 +181,15 @@ def calculate_working_days_team(start_date, end_date, qs_team):
                     stop_date = min(
                         current_date + timedelta(days=6), sch.end_at
                     )
-                    working_dates = working_days(
-                        current_date, stop_date, work_days
-                    )
+                    if current_date <= sch.start_at:
+                        begin_date = sch.start_at
+                        working_dates = working_days(
+                            begin_date, stop_date, work_days
+                        )
+                    else:
+                        working_dates = working_days(
+                            current_date, stop_date, work_days
+                        )
                     total_assigned_hours += sch.assigned_hour * len(
                         working_dates
                     )
