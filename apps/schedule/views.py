@@ -8,6 +8,8 @@ from apps.schedule.utils import (
     calculate_working_days_team,
 )
 from apps.team.models import Team
+
+from base.permissions import ModulePermission
 from base.renderers import ApiRenderer
 from .models import Schedule
 from .serializers import ScheduleSerializer, SchedulelistSerializer
@@ -17,11 +19,11 @@ from common.constants import ApplicationMessages
 from datetime import datetime
 from rest_framework import views
 from apps.schedule.filters import ScheduleFilter
-from base.renderers import ApiRenderer
 
 
 # Create your views here.
 class ScheduleViewSet(viewsets.ModelViewSet):
+    permission_classes = [ModulePermission]
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
     serializer_class_list = SchedulelistSerializer
@@ -60,188 +62,94 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         )
 
     def list(self, request):
-        # Check if the user has permission to list projects
-        req_user = request.user
-        if req_user.is_company_owner or module_perm(
-            "schedule", req_user, "view"
-        ):
-            queryset = self.filter_queryset(self.get_queryset())
-
-            start_date = request.query_params.get("start_date", None)
-            end_date = request.query_params.get("end_date", None)
-            if start_date and end_date:
-                start_date = datetime.strptime(start_date, "%Y-%m-%d")
-                end_date = datetime.strptime(end_date, "%Y-%m-%d")
-                queryset = queryset.filter(
-                    start_at__lte=end_date, end_at__gte=start_date
-                )
-            serializer = self.serializer_class_list(queryset, many=True)
-            return Response(
-                {
-                    "status": status.HTTP_200_OK,
-                    "message": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
-                },
-                status=status.HTTP_200_OK,
+        queryset = self.filter_queryset(self.get_queryset())
+        start_date = request.query_params.get("start_date", None)
+        end_date = request.query_params.get("end_date", None)
+        if start_date and end_date:
+            start_date = datetime.strptime(start_date, "%Y-%m-%d")
+            end_date = datetime.strptime(end_date, "%Y-%m-%d")
+            queryset = queryset.filter(
+                start_at__lte=end_date, end_at__gte=start_date
             )
-        else:
-            return Response(
-                {
-                    "status": status.HTTP_403_FORBIDDEN,
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                    "data": {},
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        serializer = self.serializer_class_list(queryset, many=True)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def create(self, request):
-        # Check if the user has permission to add a project
-        req_user = request.user
-        if req_user.is_company_owner or module_perm(
-            "schedule", req_user, "add"
-        ):
-            # Get the user's company_id from the request user
-            company_id = req_user.company.id
-            # Serialize the data
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            serializer_list = self.serializer_class_list(
-                instance=serializer.instance
-            )
-            return Response(
-                {
-                    "status": status.HTTP_201_CREATED,
-                    "message": ApplicationMessages.SUCCESS,
-                    "data": serializer_list.data,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-        else:
-            return Response(
-                {
-                    "status": status.HTTP_403_FORBIDDEN,
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                    "data": {},
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        serializer = self.serializer_class_list(instance=serializer.instance)
+        return Response(
+            {
+                "status": status.HTTP_201_CREATED,
+                "message": ApplicationMessages.SUCCESS,
+                "data": serializer.data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
     def retrieve(self, request, pk=None):
         instance = self.get_object()
-        # Check if the user has permission to retrieve this project
-        req_user = request.user
-        if req_user.is_company_owner or module_perm(
-            "schedule", req_user, "view"
-        ):
-            serializer = self.serializer_class_list(instance)
-            return Response(
-                {
-                    "status": status.HTTP_200_OK,
-                    "message": ApplicationMessages.SUCCESS,
-                    "data": serializer.data,
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {
-                    "status": status.HTTP_403_FORBIDDEN,
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                    "data": {},
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        serializer = self.serializer_class_list(instance)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def update(self, request, pk=None):
         instance = self.get_object()
-        # Check if the user has permission to update this project
-        req_user = request.user
-        if req_user.is_company_owner or module_perm(
-            "schedule", req_user, "update"
-        ):
-            serializer = self.get_serializer(instance, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-            serializer_list = self.serializer_class_list(
-                instance=serializer.instance
-            )
-            return Response(
-                {
-                    "status": status.HTTP_200_OK,
-                    "message": ApplicationMessages.SUCCESS,
-                    "data": serializer_list.data,
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {
-                    "status": status.HTTP_403_FORBIDDEN,
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                    "data": {},
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        serializer = self.serializer_class_list(instance=serializer.instance)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def partial_update(self, request, pk=None):
         instance = self.get_object()
-        # Check if the user has permission to partially update this project
-        req_user = request.user
-        if req_user.is_company_owner or module_perm(
-            "schedule", req_user, "update"
-        ):
-            serializer = self.get_serializer(
-                instance, data=request.data, partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-            serializer_list = self.serializer_class_list(
-                instance=serializer.instance
-            )
-            return Response(
-                {
-                    "status": status.HTTP_200_OK,
-                    "message": ApplicationMessages.SUCCESS,
-                    "data": serializer_list.data,
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {
-                    "status": status.HTTP_403_FORBIDDEN,
-                    "message": ApplicationMessages.PERMISSION_DENIED,
-                    "data": {},
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        serializer = self.serializer_class_list(instance=serializer.instance)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "data": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def destroy(self, request, pk=None):
         instance = self.get_object()
-        # Check if the user has permission to delete this project
-        req_user = request.user
-        if req_user.is_company_owner or module_perm(
-            "schedule", req_user, "delete"
-        ):
-            self.perform_destroy(instance)
-            return Response(
-                {
-                    "status": status.HTTP_200_OK,
-                    "message": ApplicationMessages.SUCCESS,
-                    "data": {},
-                },
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {
-                    "status": status.HTTP_403_FORBIDDEN,
-                    "message": ApplicationMessages.SUCCESS,
-                    "data": {},
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        self.perform_destroy(instance)
+        return Response(
+            {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
+                "data": {},
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class TimelineProjectAPIView(views.APIView):
@@ -253,7 +161,6 @@ class TimelineProjectAPIView(views.APIView):
         return Project.objects.filter(company_id=user.company_id)
 
     def get(self, request):
-        req_user = request.user
         result = {}
         queryset = self.get_queryset()
         start_date = request.query_params.get("start_date", None)
@@ -278,7 +185,6 @@ class TimelineTeamAPIView(views.APIView):
         return Team.objects.filter(company_id=user.company_id)
 
     def get(self, request):
-        req_user = request.user
         result = {}
         queryset = self.get_queryset()
         start_date = request.query_params.get("start_date", None)
