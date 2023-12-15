@@ -196,6 +196,7 @@ def calculate_working_days_team(start_date, end_date, qs_schedule, company_id):
     end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
 
     # Fetch distinct project_member ids from schedules
+    project_member_ids = qs_schedule.values("project_member").distinct()
     team_member_ids = qs_schedule.values("project_member__member").distinct()
     team_members_combined = (
         Team.objects.filter(
@@ -217,7 +218,7 @@ def calculate_working_days_team(start_date, end_date, qs_schedule, company_id):
         Prefetch(
             "projectmember_set",
             queryset=ProjectMember.objects.filter(
-                project__company_id=company_id
+                id__in=project_member_ids, project__company_id=company_id
             ),
             to_attr="project_members",
         )
