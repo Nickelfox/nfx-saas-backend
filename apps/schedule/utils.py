@@ -197,24 +197,11 @@ def calculate_working_days_team(start_date, end_date, qs_schedule, company_id):
 
     # Fetch distinct project_member ids from schedules
     project_member_ids = qs_schedule.values("project_member").distinct()
-    team_member_ids = qs_schedule.values("project_member__member").distinct()
-    team_members_combined = (
-        Team.objects.filter(
-            Q(company_id=company_id)
-            & (
-                Q(id__in=team_member_ids)
-                | ~Q(
-                    id__in=ProjectMember.objects.filter(
-                        project__company_id=company_id
-                    ).values("member")
-                )
-            )
-        )
-        .distinct()
-        .order_by("user__full_name")
+    team_members_qs = Team.objects.filter(Q(company_id=company_id)).order_by(
+        "user__full_name"
     )
     # Fetch all team members not associated with projects
-    team_mem_objs = team_members_combined.prefetch_related(
+    team_mem_objs = team_members_qs.prefetch_related(
         Prefetch(
             "projectmember_set",
             queryset=ProjectMember.objects.filter(
