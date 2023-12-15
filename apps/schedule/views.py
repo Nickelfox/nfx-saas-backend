@@ -179,19 +179,26 @@ class TimelineProjectAPIView(views.APIView):
 class TimelineTeamAPIView(views.APIView):
     render_classes = [ApiRenderer]
 
-    def get_queryset(self):
+    def get_queryset(self, start_date, end_date):
         # Filter projects by the user's company
         user = self.request.user
-        return Team.objects.filter(company_id=user.company_id)
+        return Schedule.objects.filter(
+            project_member__project__company_id=user.company_id,
+            end_at__gte=start_date,
+            start_at__lte=end_date,
+        )
 
     def get(self, request):
         result = {}
-        queryset = self.get_queryset()
         start_date = request.query_params.get("start_date", None)
         end_date = request.query_params.get("end_date", None)
+        queryset = self.get_queryset(start_date, end_date)
         if start_date:
             result = calculate_working_days_team(
-                start_date, end_date, queryset
+                start_date,
+                end_date,
+                queryset,
+                request.user.company_id,
             )
         return Response(
             {

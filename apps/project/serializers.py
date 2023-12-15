@@ -1,8 +1,28 @@
 from rest_framework import serializers
+
+from apps.client.serializers import ClientSerializer
 from .models import Project, ProjectMember
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = (
+            "id",
+            "project_name",
+            "project_code",
+            "color_code",
+            "client",
+            "start_date",
+            "end_date",
+            "project_type",
+            "notes",
+        )
+
+
+class ProjectListSerializer(ProjectSerializer):
+    client = ClientSerializer()
+
     class Meta:
         model = Project
         fields = (
@@ -44,7 +64,7 @@ class ProjectMemberListSerializer(ProjectMemberSerializer):
 
 
 class ProjectMemberTeamListSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer()
+    project = ProjectListSerializer()
 
     class Meta:
         model = ProjectMember
