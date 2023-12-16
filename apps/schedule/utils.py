@@ -156,7 +156,7 @@ def calculate_weekly_assigned_hours(
 
     while current_date <= end_date:
         weekly_assigned_hours = timedelta(hours=0)
-        for project_member in team_member.projectmember_set.all():
+        for project_member in team_member.project_members:
             project_schedules = qs_schedule.filter(
                 project_member=project_member,
                 end_at__gte=current_date,
