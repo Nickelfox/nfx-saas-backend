@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
-from apps.project.models import Project
+from apps.project.models import Project, ProjectMember
 from apps.schedule.filters import ScheduleFilter
 
 from apps.schedule.utils import (
@@ -82,6 +82,13 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         )
 
     def create(self, request):
+        project_id = request.data.pop("project_id", None)
+        member_id = request.data.pop("member_id", None)
+        if project_id and member_id:
+            project_member, created = ProjectMember.objects.get_or_create(
+                project=project_id, member=member_id
+            )
+            request.data["project_member"] = project_member.id
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
