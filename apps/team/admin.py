@@ -224,7 +224,6 @@ class TeamSpecificAdmin(ImportExportModelAdmin):
         ws.add_data_validation(rule)
         rule.add(column_C_range)
 
-        # Create an HttpResponse with Excel content type
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
