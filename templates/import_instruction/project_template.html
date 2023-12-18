@@ -6,8 +6,7 @@
 {% block branding %}
     <h1 id="site-name">
         <a href="{% url 'admin:index' %}">
-            <img src="{% static 'your_custom_logo.png' %}"
-                alt="{{ request.user.company.name|upper }}  {% trans 'Squad Spot Panel' %}">
+             {{ request.user.company.name|upper }}  {% trans 'Squad Spot Panel' %}
         </a>
     </h1>
 {% endblock %}
@@ -19,9 +18,9 @@
         
         <ol style="list-style-type: decimal; margin-left: 30px; color: #555; font-size: 20px; line-height: 1.6; margin-bottom: 20px;">
             <li style="padding-bottom: 10px;">{% trans "Download the template using the link below." %}</li>
-            <li style="padding-bottom: 10px;">{% trans "Required Fields are client, project_name, and project_type." %}</li>
+            <li style="padding-bottom: 10px;">{% trans "Required Fields (colored columns) are client, project_name and color_code ." %}</li>
             <li style="padding-bottom: 10px;">{% trans "Client will have a list of client names. In case of a new client, please first add/import the client and then again download this template." %}</li>
-            <li style="padding-bottom: 10px;">{% trans "Start and end date will support formats: (yyyy-mm-dd), (dd-mm-yyyy), (dd/mm/yyyy)." %}</li>
+            <li style="padding-bottom: 10px;">{% trans "Start and end date will support formats: (yyyy-mm-dd), (dd/mm/yyyy)." %}</li>
             <li style="padding-bottom: 10px;">{% trans "Any invalid entry won't be saved in the template." %}</li>
             <li style="padding-bottom: 10px;">{% trans "On Importing of an existing project, the updated_at column will be updated." %}</li>
             <li style="padding-bottom: 10px;">{% trans "On Importing of a project with an invalid client, it will be skipped." %}</li>

@@ -169,6 +169,7 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         column_F_range = "F2:F1048576"
         column_G_range = "G2:G1048576"
         ws.append(headers)
+
         ws.column_dimensions["A"].width = 20
         ws.column_dimensions["B"].width = 30
         ws.column_dimensions["C"].width = 15
@@ -177,13 +178,20 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
         ws.column_dimensions["F"].width = 15
         ws.column_dimensions["G"].width = 20
         ws.column_dimensions["H"].width = 20
-        color_values_list = [choice[1] for choice in Color_choice.choices]
+
         choice_1_str = ",".join(client_name)
         choice_2_str = ",".join(Project_type.values)
-        choice_3_str = ",".join(color_values_list)
+        choice_3_str = ",".join(Color_choice.labels)
         valid_1_options = f'"{choice_1_str}"'
         valid_2_options = f'"{choice_2_str}"'
         valid_3_options = f'"{choice_3_str}"'
+
+        required_column = ["A1", "B1", "F1"]
+        fill_color = PatternFill(
+            start_color="6fa8dc", end_color="6fa8dc", fill_type="gray125"
+        )
+        for cell in required_column:
+            ws[cell].fill = fill_color
 
         rule = DataValidation(
             type="list",

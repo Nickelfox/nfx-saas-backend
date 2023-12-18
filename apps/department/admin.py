@@ -10,6 +10,7 @@ from import_export.admin import ImportExportModelAdmin
 from django.http import HttpResponse
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.styles import PatternFill
 
 
 class TeamMemberInline(admin.TabularInline):
@@ -117,6 +118,14 @@ class DeparmentSpecificAdmin(ImportExportModelAdmin):
         ws = wb.active
         headers = ["name"]
         ws.append(headers)
+        ws.column_dimensions["A"].width = 30
+
+        required_column = ["A1"]
+        fill_color = PatternFill(
+            start_color="6fa8dc", end_color="6fa8dc", fill_type="gray125"
+        )
+        for cell in required_column:
+            ws[cell].fill = fill_color
 
         # Create an HttpResponse with Excel content type
         response = HttpResponse(
