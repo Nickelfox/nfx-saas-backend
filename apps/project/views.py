@@ -177,9 +177,15 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
         )
 
     def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        existing_instance = ProjectMember.objects.filter(
+            project=request.data["project"], member=request.data["member"]
+        ).first()
+        if existing_instance:
+            serializer = self.get_serializer(existing_instance)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
 
         return Response(
             {
