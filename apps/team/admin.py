@@ -1,5 +1,6 @@
 from django.contrib import admin
 from apps.department.models import Department
+from apps.team.resources import TeamResource
 from apps.user.models import User
 from apps.project.models import Project, ProjectMember
 from custom_admin import company_admin_site
@@ -9,6 +10,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from common.constants import Days_choice
 from django import forms
 from datetime import timedelta
+from import_export.admin import ImportExportModelAdmin
 
 # Register your models here.
 
@@ -103,7 +105,8 @@ class ProjectInline(admin.TabularInline):
             return module_perm("team", user, "delete")
 
 
-class TeamSpecificAdmin(admin.ModelAdmin):
+class TeamSpecificAdmin(ImportExportModelAdmin):
+    resource_class = TeamResource
     inlines = [ProjectInline]
     form = TeamSpecificAdminForm
     list_display = [
