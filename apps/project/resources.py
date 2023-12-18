@@ -1,6 +1,6 @@
 from import_export import resources
 
-# from import_export.results import SkipRowException
+from common.constants import Color_choice
 from .models import Project, Client, Company
 
 
@@ -13,15 +13,6 @@ class ProjectResource(resources.ModelResource):
 
     import_errors = []  # List to store error messages for skipped rows
 
-    color_mapping = {
-        "Warm Red": "#F10982",
-        "Red": "#FF0000",
-        "Orange": "#FF7034",
-        "Maroon": "#800000",
-        "Royal Blue": "#4169e1",
-        "Light Green": "#57f287",
-    }
-
     def before_import_row(self, row, **kwargs):
         # Set company_id for every row during import
         user = kwargs.get("user")
@@ -30,7 +21,9 @@ class ProjectResource(resources.ModelResource):
         client_name = row.get("client")
         color_code_value = row.get("color_code")
         if color_code_value:
-            row["color_code"] = self.color_mapping[color_code_value]
+            row["color_code"] = Color_choice[
+                color_code_value.replace(" ", "_")
+            ]
         existing_client = Client.objects.filter(
             name=client_name, company_id=company_id
         ).first()
