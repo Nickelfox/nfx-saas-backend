@@ -17,6 +17,8 @@ from common.helpers import module_perm
 from common.constants import ApplicationMessages
 from datetime import datetime
 from rest_framework import views
+from apps.schedule.filters import ScheduleFilter
+from base.renderers import ApiRenderer
 
 
 # Create your views here.
@@ -31,6 +33,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
     render_classes = [ApiRenderer]
+    filterset_class = ScheduleFilter
     filterset_fields = [
         "id",
         "project_member",
@@ -82,7 +85,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-
+        serializer = self.serializer_class_list(instance=serializer.instance)
         return Response(
             {
                 "status": status.HTTP_201_CREATED,
@@ -94,7 +97,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         instance = self.get_object()
-        serializer = self.get_serializer(instance)
+        serializer = self.serializer_class_list(instance)
         return Response(
             {
                 "status": status.HTTP_200_OK,
@@ -109,6 +112,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        serializer = self.serializer_class_list(instance=serializer.instance)
         return Response(
             {
                 "status": status.HTTP_200_OK,
@@ -125,6 +129,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         )
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        serializer = self.serializer_class_list(instance=serializer.instance)
         return Response(
             {
                 "status": status.HTTP_200_OK,
@@ -163,7 +168,8 @@ class TimelineProjectAPIView(views.APIView):
             result = calculate_working_days_project(start_date, queryset)
         return Response(
             {
-                "status": ApplicationMessages.SUCCESS,
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.SUCCESS,
                 "data": result,
             },
             status=status.HTTP_200_OK,
@@ -171,13 +177,14 @@ class TimelineProjectAPIView(views.APIView):
 
 
 class TimelineTeamAPIView(views.APIView):
+    render_classes = [ApiRenderer]
+
     def get_queryset(self):
         # Filter projects by the user's company
         user = self.request.user
         return Team.objects.filter(company_id=user.company_id)
 
     def get(self, request):
-        req_user = request.user
         result = {}
         queryset = self.get_queryset()
         start_date = request.query_params.get("start_date", None)

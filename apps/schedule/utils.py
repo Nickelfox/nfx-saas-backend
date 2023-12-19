@@ -29,6 +29,7 @@ def calculate_working_days_project(start_date, qs_project):
                 total_hours = timedelta(hours=0)
                 pm = {
                     "id": p_m.id,
+                    "member": p_m.member_id,
                     "member": {
                         "id": p_m.member_id,
                         "capacity": p_m.member.capacity,
