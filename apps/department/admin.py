@@ -1,5 +1,6 @@
 from django.contrib import admin
 from apps.department.resources import DepartmentResource
+from apps.user.models import User
 from custom_admin import company_admin_site
 from apps.department.models import Department
 from apps.team.models import Team
@@ -9,6 +10,8 @@ from import_export.admin import ImportExportModelAdmin
 
 class TeamMemberInline(admin.TabularInline):
     model = Team
+    extra = 0
+    max_num = 0
     readonly_fields = [
         "work_days",
     ]
@@ -18,9 +21,20 @@ class TeamMemberInline(admin.TabularInline):
         "work_days",
         "user",
     ]
-    extra = 0
     can_delete = False
     show_change_link = True
+
+    def get_queryset(self, request):
+        user = request.user
+        return super().get_queryset(request).filter(company_id=user.company_id)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "user":
+            user = request.user
+            kwargs["queryset"] = User.objects.filter(
+                company_id=user.company_id
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
@@ -60,6 +74,13 @@ class DeparmentSpecificAdmin(ImportExportModelAdmin):
     list_display = ["name", "id"]
     list_filter = ("name",)
     fields = ["name"]
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            instance.company_id = request.user.company_id
+            instance.save()
+        formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id

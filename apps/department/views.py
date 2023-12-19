@@ -9,6 +9,7 @@ from .serializers import DepartmentSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
+from base.renderers import ApiRenderer
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -20,6 +21,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
+    render_classes = [ApiRenderer]
     filterset_class = DepartmentFilter
     render_classes = [ApiRenderer]
     filterset_fields = [
