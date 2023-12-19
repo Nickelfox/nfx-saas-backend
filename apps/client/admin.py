@@ -27,6 +27,18 @@ class ProjectInline(admin.TabularInline):
     can_delete = False
     show_change_link = True
 
+    def get_queryset(self, request):
+        user = request.user
+        return super().get_queryset(request).filter(company_id=user.company_id)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "client":
+            user = request.user
+            kwargs["queryset"] = Client.objects.filter(
+                company_id=user.company_id
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
         user = request.user
@@ -64,6 +76,13 @@ class ClientSpecificAdmin(ImportExportModelAdmin):
     inlines = [ProjectInline]
     list_display = ["name", "id"]
     fields = ["name"]
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            instance.company_id = request.user.company_id
+            instance.save()
+        formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
         # Save the object initially to generate obj.id
