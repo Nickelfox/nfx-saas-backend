@@ -199,6 +199,7 @@ class TimelineTeamAPIView(views.APIView):
         result = {}
         start_date = request.query_params.get("start_date", None)
         end_date = request.query_params.get("end_date", None)
+        search = request.query_params.get("search", None)
         queryset = self.get_queryset(start_date, end_date)
         if start_date:
             result = calculate_working_days_team(
@@ -206,6 +207,7 @@ class TimelineTeamAPIView(views.APIView):
                 end_date,
                 queryset,
                 request.user.company_id,
+                search_query=search
             )
         return Response(
             {

@@ -189,7 +189,7 @@ def calculate_weekly_assigned_hours(
     return weekly_assigned_hours_data
 
 
-def calculate_working_days_team(start_date, end_date, qs_schedule, company_id):
+def calculate_working_days_team(start_date, end_date, qs_schedule, company_id, search_query=None):
     data = []
 
     start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -200,6 +200,8 @@ def calculate_working_days_team(start_date, end_date, qs_schedule, company_id):
     team_members_qs = Team.objects.filter(Q(company_id=company_id)).order_by(
         "user__full_name"
     )
+    if search_query:
+        team_members_qs=team_members_qs.filter(user__full_name__icontains=search_query)
     # Fetch all team members not associated with projects
     team_mem_objs = team_members_qs.prefetch_related(
         Prefetch(
