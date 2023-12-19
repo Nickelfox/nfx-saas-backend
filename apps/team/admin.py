@@ -8,6 +8,7 @@ from common.helpers import module_perm
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from common.constants import Days_choice
 from django import forms
+from datetime import timedelta
 
 # Register your models here.
 
@@ -41,7 +42,7 @@ class TeamSpecificAdminForm(forms.ModelForm):
         cleaned_data = super().clean()
         # Set a default value for the "capacity" field if it's not provided
         if "capacity" not in cleaned_data:
-            cleaned_data["capacity"] = 8
+            cleaned_data["capacity"] = timedelta(hours=8)
         return cleaned_data
 
 
@@ -53,6 +54,22 @@ class ProjectInline(admin.TabularInline):
     extra = 0
     can_delete = False
     show_change_link = True
+
+    def get_queryset(self, request):
+        user = request.user
+        return (
+            super()
+            .get_queryset(request)
+            .filter(project__company_id=user.company_id)
+        )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "project":
+            user = request.user
+            kwargs["queryset"] = Project.objects.filter(
+                company_id=user.company_id
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
