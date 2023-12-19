@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import path
 from apps.department.resources import DepartmentResource
 from apps.user.models import User
 from custom_admin import company_admin_site
@@ -6,6 +7,10 @@ from apps.department.models import Department
 from apps.team.models import Team
 from common.helpers import module_perm
 from import_export.admin import ImportExportModelAdmin
+from django.http import HttpResponse
+from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.styles import PatternFill
 
 
 class TeamMemberInline(admin.TabularInline):
@@ -69,6 +74,7 @@ class TeamMemberInline(admin.TabularInline):
 
 
 class DeparmentSpecificAdmin(ImportExportModelAdmin):
+    change_list_template = "company_admin/department_change_list.html"
     resource_class = DepartmentResource
     inlines = [TeamMemberInline]
     list_display = ["name", "id"]
@@ -94,6 +100,47 @@ class DeparmentSpecificAdmin(ImportExportModelAdmin):
     def get_queryset(self, request):
         user = request.user
         return super().get_queryset(request).filter(company_id=user.company_id)
+
+    def get_urls(self):
+        urls = super(DeparmentSpecificAdmin, self).get_urls()
+        my_urls = [
+            path(
+                "download_template/department/",
+                self.download_template,
+                name="department_custom_view",
+            ),
+        ]
+        return my_urls + urls
+
+    def download_template(self, request):
+        # Create a workbook in-memory
+        wb = Workbook()
+        ws = wb.active
+        headers = ["name"]
+        ws.append(headers)
+        ws.column_dimensions["A"].width = 30
+
+        required_column = ["A1"]
+        fill_color = PatternFill(
+            start_color="6fa8dc", end_color="6fa8dc", fill_type="gray125"
+        )
+        for cell in required_column:
+            ws[cell].fill = fill_color
+
+        # Create an HttpResponse with Excel content type
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+        # Set the response headers for file attachment
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename=department_template.xlsx"
+
+        # Save the workbook directly to the response
+        wb.save(response)
+
+        return response
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
