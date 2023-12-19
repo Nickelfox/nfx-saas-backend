@@ -28,6 +28,21 @@ class ProjectMemberSerializer(serializers.ModelSerializer):
         )
 
 
+class ProjectMemberListSerializer(ProjectMemberSerializer):
+    project_name = serializers.CharField(source="project.project_name")
+    member_name = serializers.CharField(source="member.user.full_name")
+
+    class Meta:
+        model = ProjectMember
+        fields = (
+            "id",
+            "project",
+            "project_name",
+            "member",
+            "member_name",
+        )
+
+
 class ProjectMemberTeamListSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
 

@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
 from apps.project.models import Project
+from apps.schedule.filters import ScheduleFilter
 
 from apps.schedule.utils import (
     calculate_working_days_project,
@@ -18,7 +19,6 @@ from common.constants import ApplicationMessages
 from datetime import datetime
 from rest_framework import views
 from apps.schedule.filters import ScheduleFilter
-from base.renderers import ApiRenderer
 
 
 # Create your views here.
@@ -148,7 +148,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
                 "message": ApplicationMessages.SUCCESS,
                 "data": {},
             },
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )
 
 

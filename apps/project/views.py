@@ -1,10 +1,15 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
+from apps.project.filters import ProjectFilter, ProjectMemberFilter
 
 from base.permissions import ModulePermission
 from base.renderers import ApiRenderer
 from .models import Project, ProjectMember
-from .serializers import ProjectMemberSerializer, ProjectSerializer
+from .serializers import (
+    ProjectMemberListSerializer,
+    ProjectMemberSerializer,
+    ProjectSerializer,
+)
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
@@ -20,6 +25,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
     render_classes = [ApiRenderer]
+    filterset_class = ProjectFilter
     filterset_fields = [
         "id",
         "project_name",
@@ -127,12 +133,14 @@ class ProjectMemberViewSet(viewsets.ModelViewSet):
     permission_classes = [ModulePermission]
     queryset = ProjectMember.objects.all()
     serializer_class = ProjectMemberSerializer
+    serializer_class_list = ProjectMemberListSerializer
     filter_backends = [
         filters.OrderingFilter,
         filters.SearchFilter,
         DjangoFilterBackend,
     ]  # Add DjangoFilterBackend
     render_classes = [ApiRenderer]
+    filterset_class = ProjectMemberFilter
     filterset_fields = [
         "id",
         "project",
