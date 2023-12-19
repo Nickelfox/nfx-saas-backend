@@ -59,3 +59,5 @@ class ApplicationMessages:
     LOGOUT_FAILED = "Logout Failed. Contact admin.".title()
     USER_NOT_ACTIVE = "User is not active".title()
     SUCCESS = "Success"
+    PERMISSION_DENIED = "Permission denied for this operation.".title()
+    DELETED_SUCCESS = "Object deleted successfully.".title()

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.schedule",
     "django_extensions",
     "rest_framework_simplejwt.token_blacklist",
+    "django_filters",
 ]
 
 # settings.py
