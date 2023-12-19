@@ -18,19 +18,21 @@ from django.urls import path, include
 from custom_admin import (
     ss_admin_site,
     company_admin_site,
-    # restapi_ss_admin_site,
 )
-
-# from django_api_admin.sites import site as rest_ss_site
 from common.constants import (
     SQUAD_SPOT_ADMIN_ROUTE_NAME,
     COMPANY_ADMIN_ROUTE_NAME,
 )
+from apps.user import views as user_views
 
 urlpatterns = [
     path(f"{COMPANY_ADMIN_ROUTE_NAME}/", company_admin_site.urls),
     path("user/", include("apps.user.urls")),
     path(f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}/", ss_admin_site.urls),
-    # path("rest-ss-admin/", rest_ss_site.urls),
-    # path("restapi-ss-admin/", restapi_ss_admin_site.urls),
+    path(
+        "api/login/",
+        user_views.CustomTokenObtainPairView.as_view(),
+        name="api-login",
+    ),
+    path("api/logout/", user_views.LogoutAPIView.as_view(), name="api-logout"),
 ]

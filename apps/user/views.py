@@ -11,6 +11,16 @@ from django.views.generic import TemplateView
 from .forms import AcceptInvitationForm
 from django.contrib.auth.hashers import make_password
 from squad_spot.settings import HOST_URL, COMPANY_ADMIN_URL
+from rest_framework.response import Response
+from rest_framework.validators import ValidationError
+from rest_framework import views, status, parsers, generics, permissions
+from apps.user import serializers
+from apps.user import models as user_models
+from common.constants import ApplicationMessages
+from django.contrib.auth import authenticate
+from common import auth as user_auth
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 class AcceptInvitationView(FormView):
@@ -126,3 +136,89 @@ class PasswordSetSuccessView(TemplateView):
             login_url = f"{HOST_URL}/ss-admin/"
         context["login_url"] = login_url
         return context
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = serializers.CustomTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            # Call the save method to get the response
+            response = serializer.validated_data
+
+            user_data = response
+
+            # Customize the success response format
+            data = {
+                "status": status.HTTP_200_OK,
+                "message": ApplicationMessages.LOGIN_SUCCESSFULLY,
+                "error": False,
+                "data": user_data,
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Handle the exception for invalid credentials
+            error_data = {
+                "status": status.HTTP_401_UNAUTHORIZED,
+                "message": ApplicationMessages.INVALID_PASSWORD,
+                "error": True,
+                "data": {},
+            }
+            return Response(error_data, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class LogoutAPIView(views.APIView):
+    """
+    Logout  api view
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+    user_model = user_models.User
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Delete session
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        try:
+            user = self.user_model.objects.get(id=request.user.id)
+            qs = OutstandingToken.objects.filter(user=user)
+            if qs.exists():
+                qs.delete()
+                return Response(
+                    {
+                        "status": status.HTTP_200_OK,
+                        "message": ApplicationMessages.LOGOUT_SUCCESSFULLY,
+                        "error": False,
+                        "data": {},
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                # Handle the case where qs is empty
+                return Response(
+                    {
+                        "status": status.HTTP_400_BAD_REQUEST,
+                        "message": ApplicationMessages.LOGOUT_FAILED_NO_TOKEN,
+                        "error": True,
+                        "data": {},
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except self.user_model.DoesNotExist:
+            return Response(
+                {
+                    "status": status.HTTP_400_BAD_REQUEST,
+                    "message": ApplicationMessages.LOGOUT_FAILED,
+                    "error": True,
+                    "data": {},
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
