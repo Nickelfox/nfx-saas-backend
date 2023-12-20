@@ -1,6 +1,7 @@
 # serializers.py
 from rest_framework import serializers
 from .models import Schedule
+from .utils import working_days
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
@@ -28,6 +29,7 @@ class SchedulelistSerializer(serializers.ModelSerializer):
     department_name = serializers.CharField(
         source="project_member.member.department.name"
     )
+    total_assigned_hours = serializers.SerializerMethodField()
 
     class Meta:
         model = Schedule
@@ -43,6 +45,7 @@ class SchedulelistSerializer(serializers.ModelSerializer):
             "notes",
             "assigned_hours",
             "schedule_type",
+            "total_assigned_hours",
         ]
 
     def get_assigned_hours(self, obj):
@@ -51,3 +54,11 @@ class SchedulelistSerializer(serializers.ModelSerializer):
             if obj.assigned_hour
             else None
         )
+    
+    def get_total_assigned_hours(self, obj):
+        if obj.project_member.member.work_days:
+            working_days_num = len(
+                working_days(obj.start_at, obj.end_at, obj.project_member.member.work_days)
+                )
+            return working_days_num * self.get_assigned_hours(obj)
+        return 0
