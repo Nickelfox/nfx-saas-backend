@@ -80,7 +80,7 @@ class CustomUserAdmin(admin.ModelAdmin):
                 return False
             else:
                 if (
-                    obj and obj.is_superuser
+                    obj and obj.is_super_user
                 ):  # Check if the object is associated with a superuser
                     return False
                 if (
@@ -91,6 +91,7 @@ class CustomUserAdmin(admin.ModelAdmin):
                     == ss_available_role_permissions
                 ):  # Compare with all available role permissions
                     return False  # Superadmins cannot be deleted
+                return True
 
     def has_view_permission(self, request, obj=None):
         # Check if the user has permission to change the object
@@ -118,7 +119,7 @@ class CustomUserAdmin(admin.ModelAdmin):
                 return False
             else:
                 if (
-                    obj and obj.is_superuser
+                    obj and obj.is_super_user
                 ):  # Check if the object is associated with a superuser
                     return False
                 if (
@@ -129,6 +130,7 @@ class CustomUserAdmin(admin.ModelAdmin):
                     == ss_available_role_permissions
                 ):  # Compare with all available role permissions
                     return False  # Superadmins cannot be deleted
+                return True
 
 
 class CustomUserSpecificAdmin(admin.ModelAdmin):
@@ -186,6 +188,7 @@ class CustomUserSpecificAdmin(admin.ModelAdmin):
                     == com_available_role_permissions
                 ):
                     return False
+            return True
 
     def has_view_permission(self, request, obj=None):
         # Check if the user has permission to change the object
@@ -223,6 +226,7 @@ class CustomUserSpecificAdmin(admin.ModelAdmin):
                     == com_available_role_permissions
                 ):
                     return False
+            return True
 
 
 ss_admin_site.register(User, CustomUserAdmin)
