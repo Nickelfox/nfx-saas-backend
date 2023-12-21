@@ -11,6 +11,7 @@ from django.contrib.postgres.fields import ArrayField
 
 class Team(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    emp_id = models.CharField(max_length=255, blank=True, null=True)
     capacity = models.DurationField()  # Use DurationField for hours per week
     work_days = ArrayField(
         models.CharField(max_length=3, choices=Days_choice.choices),
@@ -29,4 +30,4 @@ class Team(BaseModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.user.full_name} - {self.id}"
+        return f"{self.user.full_name} - {self.emp_id}"

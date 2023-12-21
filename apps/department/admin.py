@@ -5,11 +5,14 @@ from apps.team.models import Team
 from common.helpers import module_perm
 
 
-# Register your models here.
 class TeamMemberInline(admin.TabularInline):
     model = Team
+    readonly_fields = [
+        "work_days",
+    ]
     fields = [
         "capacity",
+        "emp_id",
         "work_days",
         "user",
     ]
