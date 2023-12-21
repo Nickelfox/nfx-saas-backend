@@ -14,7 +14,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             "end_date",
             "project_type",
             "notes",
-            "company",
         )
 
 
