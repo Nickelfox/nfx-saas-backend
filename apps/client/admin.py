@@ -20,7 +20,6 @@ class ProjectInline(admin.TabularInline):
         "start_date",
         "end_date",
         "project_type",
-        "notes",
     ]
     extra = 0
     can_delete = False
