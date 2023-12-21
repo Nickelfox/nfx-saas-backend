@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from base.permissions import ModulePermission
 from base.renderers import ApiRenderer
 from .models import Team
-from .serializers import TeamSerializer
+from .serializers import TeamSerializer, TeamListSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from common.helpers import module_perm
 from common.constants import ApplicationMessages
@@ -15,6 +15,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     permission_classes = [ModulePermission]
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+    serializer_class_list = TeamListSerializer
     filter_backends = [
         filters.OrderingFilter,
         filters.SearchFilter,
@@ -43,7 +44,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.serializer_class_list(queryset, many=True)
         return Response(
             {
                 "status": status.HTTP_200_OK,

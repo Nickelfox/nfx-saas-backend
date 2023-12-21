@@ -25,3 +25,15 @@ class ProjectMemberSerializer(serializers.ModelSerializer):
             "project",
             "member",
         )
+
+
+class ProjectMemberTeamListSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer()
+
+    class Meta:
+        model = ProjectMember
+        fields = (
+            "id",
+            "project",
+            "member",
+        )
