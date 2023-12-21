@@ -7,6 +7,7 @@ from common.constants import (
     COMPANY_ADMIN_ROUTE_NAME,
     ApplicationMessages,
 )
+from django.conf import settings
 
 
 class CustomLoginRedirectMiddleware:
@@ -16,17 +17,19 @@ class CustomLoginRedirectMiddleware:
     def __call__(self, request):
         # Your custom logic to determine the redirect URL here
         host = request.get_host()
-        parts = host.split(".")
-        if len(parts) == 2:
-            company = parts[0]
-            if company:
-                if f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}" in request.path:
-                    return render(
-                        request,
-                        "unauthorized_access.html",
-                        {"error_message": ApplicationMessages.COMPANY_INVALID},
-                        status=401,
-                    )
+        base_url = settings.HOST_URL.lower().replace("https://", "")
+        base_url = base_url.replace("http://", "")
+        host = host.replace(base_url, "")
+        company = host.replace(".", "")
+        # parts = host.split(".")
+        if company:
+            if f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}" in request.path:
+                return render(
+                    request,
+                    "unauthorized_access.html",
+                    {"error_message": ApplicationMessages.COMPANY_INVALID},
+                    status=401,
+                )
 
             # Validate company
             valid_company = Company.objects.filter(

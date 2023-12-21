@@ -21,6 +21,10 @@ from django.contrib.auth import authenticate
 from common import auth as user_auth
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from common.constants import (
+    COMPANY_ADMIN_ROUTE_NAME,
+    SQUAD_SPOT_ADMIN_ROUTE_NAME,
+)
 
 
 class AcceptInvitationView(FormView):
@@ -132,8 +136,10 @@ class PasswordSetSuccessView(TemplateView):
         company_name = self.request.GET.get("company_name")
         if company_name is not None:
             login_url = f"http://{company_name}.{COMPANY_ADMIN_URL}"
+            # login_url = f"{HOST_URL}/{COMPANY_ADMIN_ROUTE_NAME}/"
         else:
             login_url = f"{HOST_URL}/ss-admin/"
+            # login_url = f"{HOST_URL}/{SQUAD_SPOT_ADMIN_ROUTE_NAME}/"
         context["login_url"] = login_url
         return context
 
