@@ -9,8 +9,15 @@ from common.helpers import module_perm
 
 # Register your models here.
 
+
 class ScheduleSpecificAdmin(admin.ModelAdmin):
-    list_display = ["project_member", "start_at", "end_at", "id"]
+    list_display = [
+        "project_member",
+        "start_at",
+        "end_at",
+        "id",
+        "schedule_type",
+    ]
     list_filter = (
         "start_at",
         "end_at",
@@ -21,6 +28,7 @@ class ScheduleSpecificAdmin(admin.ModelAdmin):
         "end_at",
         "notes",
         "assigned_hour",
+        "schedule_type",
     ]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -33,7 +41,11 @@ class ScheduleSpecificAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         user = request.user
-        return super().get_queryset(request).filter(project_member__project__company_id=user.company_id)
+        return (
+            super()
+            .get_queryset(request)
+            .filter(project_member__project__company_id=user.company_id)
+        )
 
     def has_change_permission(self, request, obj=None):
         # Check if the user has permission to change the object
