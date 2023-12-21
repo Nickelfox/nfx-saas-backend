@@ -4,7 +4,7 @@ from common.constants import Color_choice
 from .models import Schedule
 from apps.project.models import ProjectMember, Project
 from apps.team.models import Team
-
+from datetime import timedelta
 
 class ScheduleResource(resources.ModelResource):
     class Meta:
@@ -32,7 +32,9 @@ class ScheduleResource(resources.ModelResource):
 
             }
             row["project_member"] = ProjectMember.objects.create(**project_member_data).id
-    
+        # was having excel formatting problem, that's why put string
+        row["assigned_hour"] = str(row["assigned_hour"])
+
     def skip_row(self, instance, original, row=None, errors=None):
         if errors:
             instance.project_member.project.project_name = row.get("project_name", None)
