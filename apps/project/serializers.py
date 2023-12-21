@@ -9,6 +9,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "id",
             "project_name",
             "project_code",
+            "color_code",
             "client",
             "start_date",
             "end_date",

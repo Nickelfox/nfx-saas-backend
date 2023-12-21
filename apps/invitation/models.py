@@ -25,4 +25,4 @@ class Invitation(BaseModel):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"""{self.fullname} ({self.email}) {self.role.name}"""
+        return f"""{self.fullname}-{self.email}-{self.role.name}"""

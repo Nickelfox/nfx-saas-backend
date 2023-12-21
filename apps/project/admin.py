@@ -58,6 +58,7 @@ class ProjectSpecificAdmin(admin.ModelAdmin):
     )
     fields = [
         "project_name",
+        "color_code",
         "project_code",
         "client",
         "start_date",
