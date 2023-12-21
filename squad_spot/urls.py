@@ -28,7 +28,10 @@ from rest_framework.routers import DefaultRouter
 from apps.project.views import ProjectViewSet, ProjectMemberViewSet
 from apps.department.views import DepartmentViewSet
 from apps.team.views import TeamViewSet
-from apps.schedule.views import ScheduleViewSet
+from apps.schedule.views import (
+    ScheduleViewSet,
+    TimelineProjectAPIView,
+)
 
 # Create a router for automatic URL routing
 router = DefaultRouter()
@@ -42,6 +45,11 @@ urlpatterns = [
     path(f"{COMPANY_ADMIN_ROUTE_NAME}/", company_admin_site.urls),
     path("user/", include("apps.user.urls")),
     path(f"{SQUAD_SPOT_ADMIN_ROUTE_NAME}/", ss_admin_site.urls),
+    path(
+        "api/timeline/project/",
+        TimelineProjectAPIView.as_view(),
+        name="timeline-project",
+    ),
     path(
         "api/login/",
         user_views.CustomTokenObtainPairView.as_view(),
