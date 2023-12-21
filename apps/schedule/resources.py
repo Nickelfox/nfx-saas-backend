@@ -2,7 +2,8 @@ from import_export import resources
 from datetime import timedelta
 from common.constants import Color_choice
 from .models import Schedule
-from apps.project.models import ProjectMember
+from apps.project.models import ProjectMember, Project
+from apps.team.models import Team
 
 
 class ScheduleResource(resources.ModelResource):
@@ -24,7 +25,14 @@ class ScheduleResource(resources.ModelResource):
         ).first()
         if existing_project_member:
             row["project_member"] = existing_project_member.id
-        
+        else:
+            project_member_data = {
+                "project": Project.objects.filter(project_name=name).first(),
+                "member": Team.objects.filter(user__full_name=full_name).first()
+
+            }
+            row["project_member"] = ProjectMember.objects.create(**project_member_data).id
+    
     def skip_row(self, instance, original, row=None, errors=None):
         if errors:
             instance.project_member.project.project_name = row.get("project_name", None)
