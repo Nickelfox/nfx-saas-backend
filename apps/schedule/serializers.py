@@ -49,11 +49,12 @@ class SchedulelistSerializer(serializers.ModelSerializer):
         ]
 
     def get_assigned_hours(self, obj):
-        return (
-            int(obj.assigned_hour.total_seconds())
-            if obj.assigned_hour
-            else None
-        )
+        # TODO:some model level changes need to be made to assigned hour, to optimize this
+        if (obj.assigned_hour.microseconds//10000) > 0:
+            minute_part = obj.assigned_hour.microseconds//10000
+            return minute_part/100 + obj.assigned_hour.seconds
+        return int(obj.assigned_hour.total_seconds()) if obj.assigned_hour else 0
+
     
     def get_total_assigned_hours(self, obj):
         if obj.project_member.member.work_days:

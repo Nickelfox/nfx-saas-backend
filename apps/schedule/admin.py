@@ -112,7 +112,7 @@ class ScheduleSpecificAdmin(ImportExportModelAdmin):
         for cell in required_column:
             ws[cell].fill = fill_color
 
-        project_names = list(set(list(ProjectMember.objects.values_list('project__project_name', flat=True))))
+        project_names = list(set(list(Project.objects.values_list('project_name', flat=True))))
         project_ids = list(ProjectMember.objects.values_list('project__id', flat=True))
         member_names = {}
         projects = Project.objects.filter(id__in=project_ids).distinct()
