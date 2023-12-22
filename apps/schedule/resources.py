@@ -1,10 +1,9 @@
 from import_export import resources
-from datetime import timedelta
 from common.constants import Color_choice
 from .models import Schedule
 from apps.project.models import ProjectMember, Project
 from apps.team.models import Team
-from datetime import timedelta
+
 
 class ScheduleResource(resources.ModelResource):
     class Meta:
@@ -16,7 +15,6 @@ class ScheduleResource(resources.ModelResource):
     import_errors = []  # List to store error messages for skipped rows
 
     def before_import_row(self, row, **kwargs):
-        # Set company_id for every row during import
         user = kwargs.get("user")
         name = row.get("project_name")
         full_name = row.get("full_name")
@@ -43,7 +41,3 @@ class ScheduleResource(resources.ModelResource):
             instance.assigned_hour = row.get("assigned_hour", None)
             instance.notes = row.get("notes", None)
         return True if errors else False
-
-    # def before_save_instance(self, instance, using_transactions, dry_run):
-    #     # Set the company foreign key based on the company_id
-    #     instance.company_id = instance.company.id if instance.company else None

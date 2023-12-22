@@ -139,40 +139,7 @@ class ScheduleSpecificAdmin(ImportExportModelAdmin):
 
         ws.add_data_validation(rule_project)
         rule_project.add(column_A_range)
-        # Todo dynamically load dropdowns in excel sheet
-        # rule_member = DataValidation(
-        #     type="list",
-        #     allow_blank=True,
-        #     showInputMessage=True,
-        #     showErrorMessage=True,
-        # )
 
-        # for project, members in member_names.items():
-        #     member_choices = ",".join(members)
-        #     member_range = f"B{len(ws[column_B_range]) + 1}:B1048576"
-
-        #     rule_member.formula1 = f'INDIRECT("Project_" & {column_A_range})'
-        #     ws.add_data_validation(rule_member)
-        #     rule_member.add(member_range)
-        # in
-    #     rule_member = DataValidation(
-    #     type="list",
-    #     allow_blank=True,
-    #     showInputMessage=True,
-    #     showErrorMessage=True,
-    # )
-
-    #     for project, members in member_names.items():
-    #         member_choices = ",".join(members)
-    #         # Adjust the range based on the project's row
-    #         member_range = f"B2:B1048576"  # Assuming 'full_name' column starts at B2
-
-    #         rule_member.formula1 = f'"{member_choices}"'
-    #         ws.add_data_validation(rule_member)
-    #         rule_member.add(member_range)
-
-        # between
-        
         rule = DataValidation(
             type="date",
             operator="between",
