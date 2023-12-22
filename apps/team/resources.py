@@ -6,6 +6,7 @@ from apps.user.models import User
 from apps.role.models import AccessRole
 from apps.department.models import Department
 from .models import Team
+from common.constants import GeneralConstants
 
 
 class TeamResource(resources.ModelResource):
@@ -34,10 +35,10 @@ class TeamResource(resources.ModelResource):
             if existing_user:
                 row["user"] = existing_user.id
             else:
-                role = AccessRole.objects.filter(name="no_access_role").first()
+                role = AccessRole.objects.filter(name=GeneralConstants.NO_ACCESS_ROLE).first()
                 user_obj = User.objects.create_user(
                     email=email,
-                    password="Querty1234",  # Set your default password here
+                    password=GeneralConstants.DEFAULT_PASSWORD,  # Set your default password here
                 )
                 user_obj.role_id = role.id
                 user_obj.designation = designation
@@ -62,8 +63,8 @@ class TeamResource(resources.ModelResource):
         else:
             row_skip = True
         row["company"] = user.company.id
-        row["capacity"] = "8"
-        row["work_days"] = "MON,TUE,WED,THU,FRI"
+        row["capacity"] = GeneralConstants.DEFAULT_WORK_CAPACITY
+        row["work_days"] = GeneralConstants.DEFAULT_WORK_DAYS
         return row_skip
 
     def skip_row(self, instance, original, row=None, errors=None):

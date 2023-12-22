@@ -80,3 +80,13 @@ class ApplicationMessages:
     SUCCESS = "Success"
     PERMISSION_DENIED = "Permission denied for this operation.".title()
     DELETED_SUCCESS = "Object deleted successfully.".title()
+
+
+class GeneralConstants:
+    """
+    General constant values like passwords, names etc.
+    """
+    DEFAULT_PASSWORD = "Querty1234"
+    NO_ACCESS_ROLE = "no_access_role"
+    DEFAULT_WORK_DAYS = "MON,TUE,WED,THU,FRI"
+    DEFAULT_WORK_CAPACITY = "8"
