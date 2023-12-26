@@ -41,22 +41,7 @@ pipeline {
             parallel {
                 stage('Deploying to Environment') {
                     when {
-                        expression { return BRANCH_NAME == 'dev' || BRANCH_NAME == 'develop' || BRANCH_NAME == 'qa' }
-                    }
-                    steps {
-                        sshagent(credentials : ['nfx-dev-server-do']) {
-                            sh 'ssh -o StrictHostKeyChecking=no ubuntu@"$DO_SERVER" uptime'
-                            sh """ ssh ubuntu@'$DO_SERVER' "cd projects/sspot/backend/${BRANCH_NAME}/; git reset --hard; git pull origin ${BRANCH_NAME} && chmod +x build.sh && ./build.sh" """
-                        }
-                    }
-                }
-            }
-        }
-        stage('Deploy to Digital Ocean') {
-            parallel {
-                stage('Deploying to Prod') {
-                    when {
-                        expression { return BRANCH_NAME == 'master' }
+                        expression { return BRANCH_NAME == 'dev' || BRANCH_NAME == 'develop' || BRANCH_NAME == 'qa' ||  BRANCH_NAME == 'master'  }
                     }
                     steps {
                         sshagent(credentials : ['nfx-dev-server-do']) {
