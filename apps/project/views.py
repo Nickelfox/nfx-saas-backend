@@ -6,6 +6,7 @@ from base.permissions import ModulePermission
 from base.renderers import ApiRenderer
 from .models import Project, ProjectMember
 from .serializers import (
+    ProjectListSerializer,
     ProjectMemberListSerializer,
     ProjectMemberSerializer,
     ProjectSerializer,
@@ -19,6 +20,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [ModulePermission]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    serializer_class_list = ProjectListSerializer
     filter_backends = [
         filters.OrderingFilter,
         filters.SearchFilter,
@@ -45,7 +47,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.serializer_class_list(queryset, many=True)
         return Response(
             {
                 "status": status.HTTP_200_OK,
