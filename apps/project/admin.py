@@ -82,6 +82,7 @@ class ProjectSpecificAdmin(ImportExportModelAdmin):
     list_filter = (
         "client",
         "project_type",
+        "color_code",
     )
     fields = [
         "project_name",
