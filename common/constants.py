@@ -44,14 +44,14 @@ class Color_choice(TextChoices):
     List of Project Color Code choices
     """
 
-    Orange = ("#FF7034", "Orange")
-    Green = ("#57f287", "Green")
-    Aqua = ("#7FFFD4", "Aqua")
-    Blue = ("#4169e1", "Blue")
-    Purple = ("#9370DB", "Purple")
-    Magenta = ("#BA55D3", "Magenta")
-    Red = ("#FF0000", "Red")
-    Gray = ("#D3D3D3", "Gray")
+    Orange = ("#fa6400cc", "Orange")
+    Green = ("#1e8c0acc", "Green")
+    Aqua = ("#3ca0c8cc", "Aqua")
+    Blue = ("#004696cc", "Blue")
+    Purple = ("#78328ccc", "Purple")
+    Magenta = ("#d22864cc", "Magenta")
+    Red = ("#d20a0acc", "Red")
+    Gray = ("#888888cc", "Gray")
 
 
 class Schedule_type(TextChoices):
