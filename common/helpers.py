@@ -1,4 +1,7 @@
+from apps.client.models import Client
+from apps.project.models import Project
 from apps.role.models import AccessRole
+from common import constants
 
 
 def module_perm(name, user, perm):
@@ -203,3 +206,14 @@ com_available_role_permissions = [
     "Schdeule:update",
     "Schdeule:delete",
 ]
+
+
+def create_static_objs_on_company_gen(company_id):
+    role_instance, no_access_role = AccessRole.objects.get_or_create(
+        name=constants.GeneralConstants.NO_ACCESS_ROLE, company_id=company_id
+    )
+    project_instance, time_off_project = Project.objects.get_or_create(
+        project_name=constants.Schedule_type.TIME_OFF,
+        color_code=constants.Color_choice.Gray,
+        company_id=company_id,
+    )

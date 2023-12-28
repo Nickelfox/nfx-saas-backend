@@ -6,6 +6,8 @@ from apps.team.models import Team
 from django.db.models import Prefetch
 from collections import defaultdict
 
+from common import constants
+
 
 def calculate_working_days_project(start_date, qs_project):
     data = []
@@ -150,12 +152,15 @@ def calculate_weekly_assigned_hours(
     team_member, start_date, end_date, qs_schedule
 ):
     weekly_assigned_hours_data = []
+    weekly_time_off_hours_data = []
 
     current_date = start_date
     one_week = timedelta(days=7)
 
     while current_date <= end_date:
         weekly_assigned_hours = timedelta(hours=0)
+        weekly_timeoff_hours = timedelta(hours=0)
+        time_off_dates = []
         for project_member in team_member.project_members:
             project_schedules = qs_schedule.filter(
                 project_member=project_member,
@@ -164,17 +169,37 @@ def calculate_weekly_assigned_hours(
             )
 
             for schedule in project_schedules:
-                stop_date = min(
-                    current_date + timedelta(days=6), schedule.end_at
-                )
-                begin_date = max(current_date, schedule.start_at)
-                working_dates = working_days(
-                    begin_date, stop_date, team_member.work_days
-                )
-                total_assigned_hours = schedule.assigned_hour * len(
-                    working_dates
-                )
-                weekly_assigned_hours += total_assigned_hours
+                if schedule.schedule_type == constants.Schedule_type.WORK:
+                    stop_date = min(
+                        current_date + timedelta(days=6), schedule.end_at
+                    )
+                    begin_date = max(current_date, schedule.start_at)
+                    working_dates = working_days(
+                        begin_date, stop_date, team_member.work_days
+                    )
+                    total_assigned_hours = schedule.assigned_hour * len(
+                        working_dates
+                    )
+                    weekly_assigned_hours += total_assigned_hours
+                else:
+                    stop_date = min(
+                        current_date + timedelta(days=6), schedule.end_at
+                    )
+                    begin_date = max(current_date, schedule.start_at)
+                    total_timeoff_hours = schedule.assigned_hour
+                    working_dates = working_days(
+                        begin_date, stop_date, team_member.work_days
+                    )
+                    weekly_timeoff_hours += total_timeoff_hours * len(
+                        working_dates
+                    )
+                    time_off_dates.append(
+                        {
+                            "timeoff_start": begin_date.strftime("%Y-%m-%d"),
+                            "timeoff_end": stop_date.strftime("%Y-%m-%d"),
+                            "time_off_hours": schedule.assigned_hour,
+                        }
+                    )
 
         weekly_assigned_hours_data.append(
             {
@@ -183,13 +208,23 @@ def calculate_weekly_assigned_hours(
                 "total_assigned": weekly_assigned_hours,
             }
         )
+        weekly_time_off_hours_data.append(
+            {
+                "start": current_date.strftime("%Y-%m-%d"),
+                "end": (current_date + timedelta(days=6)).strftime("%Y-%m-%d"),
+                "time_off_dates": time_off_dates,
+                "total_time_off": weekly_timeoff_hours,
+            }
+        )
 
         current_date += one_week
 
-    return weekly_assigned_hours_data
+    return weekly_assigned_hours_data, weekly_time_off_hours_data
 
 
-def calculate_working_days_team(start_date, end_date, qs_schedule, company_id, search_query=None):
+def calculate_working_days_team(
+    start_date, end_date, qs_schedule, company_id, search_query=None
+):
     data = []
 
     start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -201,7 +236,9 @@ def calculate_working_days_team(start_date, end_date, qs_schedule, company_id, s
         "user__full_name"
     )
     if search_query:
-        team_members_qs=team_members_qs.filter(user__full_name__icontains=search_query)
+        team_members_qs = team_members_qs.filter(
+            user__full_name__icontains=search_query
+        )
     # Fetch all team members not associated with projects
     team_mem_objs = team_members_qs.prefetch_related(
         Prefetch(
@@ -216,7 +253,10 @@ def calculate_working_days_team(start_date, end_date, qs_schedule, company_id, s
         weekly_capacity_data = calculate_weekly_capacity(
             team_member, start_date, end_date
         )
-        weekly_assigned_hours_data = calculate_weekly_assigned_hours(
+        (
+            weekly_assigned_hours_data,
+            weekly_time_off_hours_data,
+        ) = calculate_weekly_assigned_hours(
             team_member, start_date, end_date, qs_schedule
         )
 
@@ -233,7 +273,9 @@ def calculate_working_days_team(start_date, end_date, qs_schedule, company_id, s
                         "color_code": project_member.project.color_code,
                         "client": {
                             "id": project_member.project.client_id,
-                            "name": project_member.project.client.name,
+                            "name": project_member.project.client.name
+                            if project_member.project.client
+                            else "",
                         },
                         "start_date": project_member.project.start_date,
                         "end_date": project_member.project.end_date,
@@ -262,6 +304,7 @@ def calculate_working_days_team(start_date, end_date, qs_schedule, company_id, s
             "project_members": project_members_data,
             "weekly_capacity": weekly_capacity_data,
             "weekly_assigned_hours": weekly_assigned_hours_data,
+            "weekly_time_off_hours": weekly_time_off_hours_data,
         }
 
         data.append(team_member_data)
