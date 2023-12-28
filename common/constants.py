@@ -44,12 +44,14 @@ class Color_choice(TextChoices):
     List of Project Color Code choices
     """
 
-    Warm_Red = ("#F10982", "Warm Red")
-    Red = ("#FF0000", "Red")
-    Orange = ("#FF7034", "Orange")
-    Maroon = ("#800000", "Maroon")
-    Royal_Blue = ("#4169e1", "Royal Blue")
-    Light_Green = ("#57f287", "Light Green")
+    Orange = ("#fa6400cc", "Orange")
+    Green = ("#1e8c0acc", "Green")
+    Aqua = ("#3ca0c8cc", "Aqua")
+    Blue = ("#004696cc", "Blue")
+    Purple = ("#78328ccc", "Purple")
+    Magenta = ("#d22864cc", "Magenta")
+    Red = ("#d20a0acc", "Red")
+    Gray = ("#888888cc", "Gray")
 
 
 class Schedule_type(TextChoices):
