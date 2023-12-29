@@ -49,7 +49,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     ]
     search_fields = [
         "id",
-        "project_member",
+        "project_member__member__user__full_name",
         "start_at",
         "end_at",
     ]
