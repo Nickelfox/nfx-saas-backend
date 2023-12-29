@@ -34,7 +34,9 @@ class TeamResource(resources.ModelResource):
             if existing_user:
                 row["user"] = existing_user.id
             else:
-                role = AccessRole.objects.filter(name="no_access_role").first()
+                role, created = AccessRole.objects.get_or_create(
+                    name="no_access_role", company_id=company_id
+                )
                 user_obj = User.objects.create_user(
                     email=email,
                     password="Querty1234",  # Set your default password here
