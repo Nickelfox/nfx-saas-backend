@@ -169,27 +169,20 @@ def calculate_weekly_assigned_hours(
             )
 
             for schedule in project_schedules:
+                stop_date = min(
+                    current_date + timedelta(days=6), schedule.end_at
+                )
+                begin_date = max(current_date, schedule.start_at)
+                working_dates = working_days(
+                    begin_date, stop_date, team_member.work_days
+                )
                 if schedule.schedule_type == constants.Schedule_type.WORK:
-                    stop_date = min(
-                        current_date + timedelta(days=6), schedule.end_at
-                    )
-                    begin_date = max(current_date, schedule.start_at)
-                    working_dates = working_days(
-                        begin_date, stop_date, team_member.work_days
-                    )
                     total_assigned_hours = schedule.assigned_hour * len(
                         working_dates
                     )
                     weekly_assigned_hours += total_assigned_hours
                 else:
-                    stop_date = min(
-                        current_date + timedelta(days=6), schedule.end_at
-                    )
-                    begin_date = max(current_date, schedule.start_at)
                     total_timeoff_hours = schedule.assigned_hour
-                    working_dates = working_days(
-                        begin_date, stop_date, team_member.work_days
-                    )
                     weekly_timeoff_hours += total_timeoff_hours * len(
                         working_dates
                     )
