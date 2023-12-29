@@ -209,11 +209,15 @@ com_available_role_permissions = [
 
 
 def create_static_objs_on_company_gen(company_id):
-    role_instance, no_access_role = AccessRole.objects.get_or_create(
+    client_instance, created_client = Client.objects.get_or_create(
+        name=constants.Schedule_type.TIME_OFF, company_id=company_id
+    )
+    role_instance, created_role = AccessRole.objects.get_or_create(
         name=constants.GeneralConstants.NO_ACCESS_ROLE, company_id=company_id
     )
-    project_instance, time_off_project = Project.objects.get_or_create(
+    project_instance, created_project = Project.objects.get_or_create(
         project_name=constants.Schedule_type.TIME_OFF,
+        client=client_instance,
         color_code=constants.Color_choice.Gray,
         company_id=company_id,
     )
