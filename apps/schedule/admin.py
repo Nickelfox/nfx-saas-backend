@@ -14,6 +14,7 @@ from import_export.admin import ImportExportModelAdmin
 from openpyxl.worksheet.datavalidation import DataValidation
 from apps.schedule.resources import ScheduleResource
 from openpyxl.styles import PatternFill
+
 # Register your models here.
 
 
@@ -55,7 +56,7 @@ class ScheduleSpecificAdmin(ImportExportModelAdmin):
             .get_queryset(request)
             .filter(project_member__project__company_id=user.company_id)
         )
-    
+
     def get_urls(self):
         urls = super(ScheduleSpecificAdmin, self).get_urls()
         my_urls = [
@@ -71,20 +72,20 @@ class ScheduleSpecificAdmin(ImportExportModelAdmin):
             ),
         ]
         return my_urls + urls
-    
+
     def instruct_view(self, request):
         return render(
             request,
             "import_instruction/schedule_template.html",
         )
-    
+
     def download_template(self, request):
         # Create a workbook in-memory
         wb = Workbook()
         ws = wb.active
         headers = [
             "project_name",
-            "full_name",
+            "email",
             "start_at",
             "end_at",
             "assigned_hour",
@@ -112,13 +113,15 @@ class ScheduleSpecificAdmin(ImportExportModelAdmin):
         for cell in required_column:
             ws[cell].fill = fill_color
 
-        project_names = list(set(list(Project.objects.values_list('project_name', flat=True))))
-        project_ids = list(ProjectMember.objects.values_list('project__id', flat=True))
-        member_names = {}
-        projects = Project.objects.filter(id__in=project_ids).distinct()
-        for project in projects:
-            members = ProjectMember.objects.filter(project=project)
-            member_names[project.project_name] = list(members.values_list('member__user__full_name', flat=True))
+        project_names = list(
+            set(
+                list(
+                    Project.objects.filter(
+                        company_id=request.user.company_id
+                    ).values_list("project_name", flat=True)
+                )
+            )
+        )
 
         choice_project_str = ",".join(project_names)
         valid_project_options = f'"{choice_project_str}"'
