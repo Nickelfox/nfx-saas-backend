@@ -360,11 +360,6 @@ def calculate_working_days_team(
 
     # Batch Fetch Project Member Schedules
     project_member_ids = qs_schedule.values("project_member").distinct()
-    project_schedules = qs_schedule.filter(
-        project_member__in=project_member_ids,
-        end_at__gte=start_date,
-        start_at__lte=end_date,
-    )
 
     # Batch Fetch Team Members
     team_mem_objs = (
@@ -382,7 +377,7 @@ def calculate_working_days_team(
             "projectmember_set",
             queryset=ProjectMember.objects.filter(
                 id__in=project_member_ids, project__company_id=company_id
-            ).select_related("project"),
+            ).select_related("project", "project__client"),
             to_attr="project_members",
         )
     )
@@ -394,7 +389,7 @@ def calculate_working_days_team(
             weekly_assigned_hours_data,
             weekly_time_off_hours_data,
         ) = calculate_weekly_assigned_hours(
-            team_member, start_date, end_date, project_schedules
+            team_member, start_date, end_date, qs_schedule
         )
         project_members_data = []
         if team_member.project_members:
