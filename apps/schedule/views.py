@@ -19,6 +19,7 @@ from common.constants import ApplicationMessages
 from datetime import datetime
 from rest_framework import views
 from apps.schedule.filters import ScheduleFilter
+from django.db import connection, reset_queries
 
 
 # Create your views here.
@@ -207,7 +208,7 @@ class TimelineTeamAPIView(views.APIView):
                 end_date,
                 queryset,
                 request.user.company_id,
-                search_query=search
+                search_query=search,
             )
         return Response(
             {
