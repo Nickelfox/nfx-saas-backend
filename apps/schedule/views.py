@@ -19,7 +19,6 @@ from common.constants import ApplicationMessages
 from datetime import datetime
 from rest_framework import views
 from apps.schedule.filters import ScheduleFilter
-from django.db import connection, reset_queries
 
 
 # Create your views here.
@@ -198,7 +197,6 @@ class TimelineTeamAPIView(views.APIView):
 
     def get(self, request):
         result = {}
-        # reset_queries()
         start_date = request.query_params.get("start_date", None)
         end_date = request.query_params.get("end_date", None)
         search = request.query_params.get("search", None)
@@ -211,9 +209,6 @@ class TimelineTeamAPIView(views.APIView):
                 request.user.company_id,
                 search_query=search,
             )
-        # print("-" * 30)
-        # print(len(connection.queries))
-        # print("-" * 30)
         return Response(
             {
                 "status": status.HTTP_200_OK,

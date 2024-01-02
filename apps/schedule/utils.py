@@ -4,7 +4,6 @@ from django.db.models import Q
 from apps.team.models import Team
 from django.db.models import Prefetch
 from collections import defaultdict
-from django.db import connection, reset_queries
 from common import constants
 
 
