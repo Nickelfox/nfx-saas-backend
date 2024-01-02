@@ -217,8 +217,9 @@ def calculate_weekly_assigned_hours(
             begin_date = begin_date.strftime("%Y-%m-%d")
             stop_date = stop_date.strftime("%Y-%m-%d")
             if schedule_info["schedule_type"] == constants.Schedule_type.WORK:
-                start_at_list.append(min(working_dates))
-                end_at_list.append(max(working_dates))
+                if working_dates:
+                    start_at_list.append(min(working_dates))
+                    end_at_list.append(max(working_dates))
                 total_assigned_hours = schedule_info["assigned_hour"] * len(
                     working_dates
                 )
@@ -354,26 +355,34 @@ def calculate_working_days_team(
     start_date, end_date, qs_schedule, company_id, search_query=None
 ):
     data = []
-    reset_queries()
     start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
     end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
 
-    # Fetch distinct project_member ids from schedules
+    # Batch Fetch Project Member Schedules
     project_member_ids = qs_schedule.values("project_member").distinct()
-    team_members_qs = Team.objects.filter(Q(company_id=company_id)).order_by(
-        "user__full_name"
+    project_schedules = qs_schedule.filter(
+        project_member__in=project_member_ids,
+        end_at__gte=start_date,
+        start_at__lte=end_date,
     )
-    if search_query:
-        team_members_qs = team_members_qs.filter(
-            user__full_name__icontains=search_query
+
+    # Batch Fetch Team Members
+    team_mem_objs = (
+        Team.objects.filter(
+            Q(company_id=company_id),
+            user__full_name__icontains=search_query if search_query else "",
         )
-    # Fetch all team members not associated with projects
-    team_mem_objs = team_members_qs.prefetch_related(
+        .order_by("user__full_name")
+        .select_related("user", "department")
+    )
+
+    # Use Prefetch for Project Members and Project
+    team_mem_objs = team_mem_objs.prefetch_related(
         Prefetch(
             "projectmember_set",
             queryset=ProjectMember.objects.filter(
                 id__in=project_member_ids, project__company_id=company_id
-            ),
+            ).select_related("project"),
             to_attr="project_members",
         )
     )
@@ -385,9 +394,8 @@ def calculate_working_days_team(
             weekly_assigned_hours_data,
             weekly_time_off_hours_data,
         ) = calculate_weekly_assigned_hours(
-            team_member, start_date, end_date, qs_schedule
+            team_member, start_date, end_date, project_schedules
         )
-
         project_members_data = []
         if team_member.project_members:
             for project_member in team_member.project_members:
@@ -434,6 +442,100 @@ def calculate_working_days_team(
             "weekly_assigned_hours": weekly_assigned_hours_data,
             "weekly_time_off_hours": weekly_time_off_hours_data,
         }
-
         data.append(team_member_data)
     return data
+
+
+# def calculate_working_days_team(
+#     start_date, end_date, qs_schedule, company_id, search_query=None
+# ):
+#     data = []
+#     reset_queries()
+#     start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+#     end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+#     # Fetch distinct project_member ids from schedules
+#     project_member_ids = qs_schedule.values("project_member").distinct()
+#     team_members_qs = Team.objects.filter(Q(company_id=company_id)).order_by(
+#         "user__full_name"
+#     )
+#     if search_query:
+#         team_members_qs = team_members_qs.filter(
+#             user__full_name__icontains=search_query
+#         )
+#     # Fetch all team members not associated with projects
+#     team_mem_objs = team_members_qs.prefetch_related(
+#         Prefetch(
+#             "projectmember_set",
+#             queryset=ProjectMember.objects.filter(
+#                 id__in=project_member_ids, project__company_id=company_id
+#             ),
+#             to_attr="project_members",
+#         )
+#     )
+#     print("-" * 30)
+#     print(len(connection.queries))
+#     print("-" * 30)
+#     i = 0
+#     for team_member in team_mem_objs:
+#         weekly_capacity_data = calculate_weekly_capacity(
+#             team_member, start_date, end_date
+#         )
+#         (
+#             weekly_assigned_hours_data,
+#             weekly_time_off_hours_data,
+#         ) = calculate_weekly_assigned_hours(
+#             team_member, start_date, end_date, qs_schedule
+#         )
+#         print("-" * 30)
+#         print(i, " - ", len(connection.queries))
+#         print("-" * 30)
+#         project_members_data = []
+#         if team_member.project_members:
+#             for project_member in team_member.project_members:
+#                 project_data = {
+#                     "id": project_member.id,
+#                     "member": project_member.member_id,
+#                     "project": {
+#                         "id": project_member.project_id,
+#                         "project_name": project_member.project.project_name,
+#                         "project_code": project_member.project.project_code,
+#                         "color_code": project_member.project.color_code,
+#                         "client": {
+#                             "id": project_member.project.client_id,
+#                             "name": project_member.project.client.name
+#                             if project_member.project.client
+#                             else "",
+#                         },
+#                         "start_date": project_member.project.start_date,
+#                         "end_date": project_member.project.end_date,
+#                         "project_type": project_member.project.project_type,
+#                         "notes": project_member.project.notes,
+#                     },
+#                 }
+#                 project_members_data.append(project_data)
+#         team_member_data = {
+#             "id": team_member.id,
+#             "capacity": team_member.capacity,
+#             "emp_id": team_member.emp_id,
+#             "department": {
+#                 "id": team_member.department.id,
+#                 "name": team_member.department.name,
+#             },
+#             "work_days": team_member.work_days,
+#             "user": {
+#                 "id": team_member.user.id,
+#                 "full_name": team_member.user.full_name,
+#                 "email": team_member.user.email,
+#                 "role": team_member.user.role.id,
+#                 "phone_number": team_member.user.phone_number,
+#                 "designation": team_member.user.designation,
+#             },
+#             "project_members": project_members_data,
+#             "weekly_capacity": weekly_capacity_data,
+#             "weekly_assigned_hours": weekly_assigned_hours_data,
+#             "weekly_time_off_hours": weekly_time_off_hours_data,
+#         }
+#         i += 1
+#         data.append(team_member_data)
+#     return data
