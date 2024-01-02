@@ -218,6 +218,6 @@ def create_static_objs_on_company_gen(company_id):
     project_instance, created_project = Project.objects.get_or_create(
         project_name=constants.Schedule_type.TIME_OFF,
         client=client_instance,
-        color_code=constants.Color_choice.Gray,
+        color_code=constants.Color_choice.Black,
         company_id=company_id,
     )
