@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
-from apps.project.models import Project
+from apps.project.models import Project, ProjectMember
 from apps.schedule.filters import ScheduleFilter
 
 from apps.schedule.utils import (
@@ -82,6 +82,13 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         )
 
     def create(self, request):
+        project_id = request.data.pop("project_id", None)
+        member_id = request.data.pop("member_id", None)
+        if project_id and member_id:
+            project_member, created = ProjectMember.objects.get_or_create(
+                project=project_id, member=member_id
+            )
+            request.data["project_member"] = project_member.id
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -179,19 +186,26 @@ class TimelineProjectAPIView(views.APIView):
 class TimelineTeamAPIView(views.APIView):
     render_classes = [ApiRenderer]
 
-    def get_queryset(self):
+    def get_queryset(self, start_date, end_date):
         # Filter projects by the user's company
         user = self.request.user
-        return Team.objects.filter(company_id=user.company_id)
+        return Schedule.objects.filter(
+            project_member__project__company_id=user.company_id,
+            end_at__gte=start_date,
+            start_at__lte=end_date,
+        )
 
     def get(self, request):
         result = {}
-        queryset = self.get_queryset()
         start_date = request.query_params.get("start_date", None)
         end_date = request.query_params.get("end_date", None)
+        queryset = self.get_queryset(start_date, end_date)
         if start_date:
             result = calculate_working_days_team(
-                start_date, end_date, queryset
+                start_date,
+                end_date,
+                queryset,
+                request.user.company_id,
             )
         return Response(
             {
