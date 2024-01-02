@@ -47,6 +47,12 @@ class ProjectMemberSerializer(serializers.ModelSerializer):
             "member",
         )
 
+    def create(self, validated_data):
+        instance, created = ProjectMember.objects.get_or_create(
+            **validated_data
+        )
+        return instance
+
 
 class ProjectMemberListSerializer(ProjectMemberSerializer):
     project_name = serializers.CharField(source="project.project_name")
