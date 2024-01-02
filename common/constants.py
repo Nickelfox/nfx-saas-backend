@@ -52,6 +52,7 @@ class Color_choice(TextChoices):
     Magenta = ("#d22864cc", "Magenta")
     Red = ("#d20a0acc", "Red")
     Gray = ("#888888cc", "Gray")
+    Black = ("#222222bf", "Black")
 
 
 class Schedule_type(TextChoices):
