@@ -7,7 +7,7 @@ from apps.user.filters import UserFilter
 from base.permissions import ModulePermission
 from base.renderers import ApiRenderer
 from common.constants import Invite_type, ApplicationMessages
-from common.helpers import module_perm
+from common.helpers import create_static_objs_on_company_gen, module_perm
 from .models import User
 from apps.company.models import Company
 from django.views.generic.edit import FormView
@@ -109,6 +109,7 @@ class AcceptInvitationView(FormView):
             obj.is_active = True
             obj.invite_link = ""
             obj.save()
+            create_static_objs_on_company_gen(obj.id)
             company_name = obj.name.replace(" ", "-").lower()
         else:
             if obj.invite_type == Invite_type.COMPANY:

@@ -49,7 +49,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     ]
     search_fields = [
         "id",
-        "project_member",
+        "project_member__member__user__full_name",
         "start_at",
         "end_at",
     ]
@@ -201,13 +201,13 @@ class TimelineTeamAPIView(views.APIView):
         end_date = request.query_params.get("end_date", None)
         search = request.query_params.get("search", None)
         queryset = self.get_queryset(start_date, end_date)
-        if start_date:
+        if start_date and end_date:
             result = calculate_working_days_team(
                 start_date,
                 end_date,
                 queryset,
                 request.user.company_id,
-                search_query=search
+                search_query=search,
             )
         return Response(
             {
