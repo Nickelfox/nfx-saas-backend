@@ -145,17 +145,24 @@ def calculate_weekly_capacity(team_member, start_date, end_date):
 
 
 def generate_weeks(start_date, end_date):
-    return [
+    # Find the number of days to the nearest Monday (0 means Monday)
+    days_to_monday = (start_date.weekday() - 0) % 7
+    # Calculate the nearest Monday
+    nearest_monday = start_date - timedelta(days=days_to_monday)
+
+    week_data = [
         {
-            "start": (
-                current_date := start_date + timedelta(days=7 * i)
-            ).strftime("%Y-%m-%d"),
+            "start": current_date.strftime("%Y-%m-%d"),
             "end": min(current_date + timedelta(days=6), end_date).strftime(
                 "%Y-%m-%d"
             ),
         }
-        for i in range((end_date - start_date).days // 7 + 1)
+        for current_date in (
+            nearest_monday + timedelta(days=7 * i)
+            for i in range((end_date - nearest_monday).days // 7 + 1)
+        )
     ]
+    return week_data
 
 
 def calculate_weekly_assigned_hours(
@@ -183,12 +190,16 @@ def calculate_weekly_assigned_hours(
         }
 
     for week in weeks_list:
+        weekly_working_dates = working_dates = working_days(
+            datetime.strptime(week["start"], "%Y-%m-%d").date(),
+            datetime.strptime(week["end"], "%Y-%m-%d").date(),
+            team_member.work_days,
+        )
         weekly_assigned_hours = timedelta(hours=0)
         weekly_timeoff_hours = timedelta(hours=0)
         time_off_dates = []
-        start_at_list = []
-        end_at_list = []
-        assigned_dates = {}
+        assign_date_list = []
+        # assigned_dates = {}
 
         # Filter schedules based on the week's start and end dates
         project_schedules = [
@@ -217,8 +228,7 @@ def calculate_weekly_assigned_hours(
             stop_date = stop_date.strftime("%Y-%m-%d")
             if schedule_info["schedule_type"] == constants.Schedule_type.WORK:
                 if working_dates:
-                    start_at_list.append(min(working_dates))
-                    end_at_list.append(max(working_dates))
+                    assign_date_list.extend(working_dates)
                 total_assigned_hours = schedule_info["assigned_hour"] * len(
                     working_dates
                 )
@@ -235,17 +245,16 @@ def calculate_weekly_assigned_hours(
                         "time_off_hours": schedule_info["assigned_hour"],
                     }
                 )
-        if start_at_list and end_at_list:
-            assigned_dates["assign_start"] = min(start_at_list)
-            assigned_dates["assign_end"] = max(end_at_list)
-        else:
-            assigned_dates["assign_start"] = ""
-            assigned_dates["assign_end"] = ""
+        unassigned_dates = (
+            list(sorted(set(weekly_working_dates) - set(assign_date_list)))
+            if weekly_working_dates
+            else []
+        )
         weekly_assigned_hours_data.append(
             {
                 "start": week["start"],
                 "end": week["end"],
-                "assigned_dates": assigned_dates,
+                "unassigned_dates": unassigned_dates,
                 "total_assigned": weekly_assigned_hours,
             }
         )
@@ -367,7 +376,7 @@ def calculate_working_days_team(
             user__full_name__icontains=search_query if search_query else "",
         )
         .order_by("user__full_name")
-        .select_related("user", "department")
+        .select_related("user", "user__role", "department")
     )
 
     # Use Prefetch for Project Members and Project
