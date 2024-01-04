@@ -1,3 +1,4 @@
+from django.db import connection, reset_queries
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
 from apps.project.models import Project, ProjectMember
@@ -59,6 +60,9 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Schedule.objects.filter(
             project_member__project__company_id=user.company_id
+        ).prefetch_related(
+            "project_member__project",
+            "project_member__member__department",
         )
 
     def list(self, request):
