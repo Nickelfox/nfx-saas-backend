@@ -1,4 +1,3 @@
-from django.db import connection, reset_queries
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
 from apps.project.models import Project, ProjectMember
@@ -86,17 +85,24 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         )
 
     def create(self, request):
-        project_id = request.data.pop("project_id", None)
-        member_id = request.data.pop("member_id", None)
-        if project_id and member_id:
-            project_member, created = ProjectMember.objects.get_or_create(
-                project=project_id, member=member_id
-            )
-            request.data["project_member"] = project_member.id
-        serializer = self.get_serializer(data=request.data)
+        if isinstance(request.data, dict):
+            project_id = request.data.pop("project_id", None)
+            member_id = request.data.pop("member_id", None)
+            if project_id and member_id:
+                project_member, created = ProjectMember.objects.get_or_create(
+                    project=project_id, member=member_id
+                )
+                request.data["project_member"] = project_member.id
+            serializer = self.get_serializer(data=request.data)
+
+        else:
+            serializer = self.get_serializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        serializer = self.serializer_class_list(instance=serializer.instance)
+        serializer = self.serializer_class_list(
+            serializer.instance, many=isinstance(serializer.data, list)
+        )
+
         return Response(
             {
                 "status": status.HTTP_201_CREATED,
