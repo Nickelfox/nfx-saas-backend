@@ -23,7 +23,7 @@ pipeline {
         DISPLAY_SERVICE_NAME    = 'Nickelfox CPC Backend'
         BRANCH_NAME             = sh(script: "echo ${env.BRANCH_NAME}", returnStdout: true).trim()
         DO_SERVER               = credentials('nfx-dev-server')
-        CPC_SERVER               = credentials('cpc-prod-server')
+    
         
     }
     stages {
@@ -41,7 +41,7 @@ pipeline {
             parallel {
                 stage('Deploying to Environment') {
                     when {
-                        expression { return BRANCH_NAME == 'dev' || BRANCH_NAME == 'develop' || BRANCH_NAME == 'qa' }
+                        expression { return BRANCH_NAME == 'dev' || BRANCH_NAME == 'develop' || BRANCH_NAME == 'qa' ||  BRANCH_NAME == 'master'  }
                     }
                     steps {
                         sshagent(credentials : ['nfx-dev-server-do']) {
