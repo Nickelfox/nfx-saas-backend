@@ -50,6 +50,8 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     search_fields = [
         "id",
         "project_member__member__user__full_name",
+        "project_member__project__project_name",
+        "project_member__project__client__name",
         "start_at",
         "end_at",
     ]
@@ -59,6 +61,9 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Schedule.objects.filter(
             project_member__project__company_id=user.company_id
+        ).prefetch_related(
+            "project_member__project__client",
+            "project_member__member__department",
         )
 
     def list(self, request):
@@ -82,17 +87,24 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         )
 
     def create(self, request):
-        project_id = request.data.pop("project_id", None)
-        member_id = request.data.pop("member_id", None)
-        if project_id and member_id:
-            project_member, created = ProjectMember.objects.get_or_create(
-                project=project_id, member=member_id
-            )
-            request.data["project_member"] = project_member.id
-        serializer = self.get_serializer(data=request.data)
+        if isinstance(request.data, dict):
+            project_id = request.data.pop("project_id", None)
+            member_id = request.data.pop("member_id", None)
+            if project_id and member_id:
+                project_member, created = ProjectMember.objects.get_or_create(
+                    project=project_id, member=member_id
+                )
+                request.data["project_member"] = project_member.id
+            serializer = self.get_serializer(data=request.data)
+
+        else:
+            serializer = self.get_serializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        serializer = self.serializer_class_list(instance=serializer.instance)
+        serializer = self.serializer_class_list(
+            serializer.instance, many=isinstance(serializer.data, list)
+        )
+
         return Response(
             {
                 "status": status.HTTP_201_CREATED,
