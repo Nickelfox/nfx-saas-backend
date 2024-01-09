@@ -50,8 +50,6 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     search_fields = [
         "id",
         "project_member__member__user__full_name",
-        "project_member__project__project_name",
-        "project_member__project__client__name",
         "start_at",
         "end_at",
     ]

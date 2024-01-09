@@ -372,17 +372,7 @@ def calculate_working_days_team(
     # Batch Fetch Team Members
     team_mem_objs = (
         Team.objects.filter(
-            Q(user__full_name__icontains=search_query if search_query else "")
-            | Q(
-                projectmember__project__project_name__icontains=search_query
-                if search_query
-                else ""
-            )
-            | Q(
-                projectmember__project__client__name__icontains=search_query
-                if search_query
-                else ""
-            ),
+            user__full_name__icontains=search_query if search_query else "",
             company_id=company_id,
         )
         .distinct()
